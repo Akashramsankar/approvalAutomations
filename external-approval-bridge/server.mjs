@@ -22,7 +22,7 @@ function parseDecision(value) {
 function isValidHookUrl(value) {
   try {
     const parsed = new URL(normalizeText(value));
-    return parsed.protocol === "https:" && /\/event\/hook\//.test(parsed.pathname);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
   } catch {
     return false;
   }
@@ -188,6 +188,12 @@ function renderApprovalPage(url) {
   const requestId = normalizeText(url.searchParams.get("request_id"));
 
   if (!isValidHookUrl(url.searchParams.get("hook")) || !normalizeText(url.searchParams.get("token"))) {
+    console.warn("Invalid approval link received", {
+      hook: normalizeText(url.searchParams.get("hook")),
+      has_token: Boolean(normalizeText(url.searchParams.get("token"))),
+      decision,
+      request_id: requestId,
+    });
     return {
       status: 400,
       title: "Invalid Approval Link",

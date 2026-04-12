@@ -332,157 +332,152 @@
     },
     {
       "severity": 1,
-      "value": "server/server.js::2998: Function 'buildApprovalBridgeLink' has a complexity of 13. Maximum allowed is 7.",
+      "value": "server/server.js::3044: Function 'buildEmailContent' has a complexity of 29. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3049: Function 'buildEmailContent' has a complexity of 29. Maximum allowed is 7.",
+      "value": "server/server.js::3249: Function 'resolveClosedStatusOption' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3258: Function 'resolveClosedStatusOption' has a complexity of 11. Maximum allowed is 7.",
+      "value": "server/server.js::3280: Arrow function has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3289: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::3292: Function 'buildApprovalCompletionAutoCloseNote' has a complexity of 13. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3301: Function 'buildApprovalCompletionAutoCloseNote' has a complexity of 13. Maximum allowed is 7.",
+      "value": "server/server.js::3325: Async function 'maybeAutoCloseApprovedInstance' has a complexity of 24. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3334: Async function 'maybeAutoCloseApprovedInstance' has a complexity of 24. Maximum allowed is 7.",
+      "value": "server/server.js::3459: Async function 'sendApprovalEmail' has a complexity of 41. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3468: Async function 'sendApprovalEmail' has a complexity of 41. Maximum allowed is 7.",
+      "value": "server/server.js::3878: Async function 'syncGateAfterApprovalUpdate' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3887: Async function 'syncGateAfterApprovalUpdate' has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::3908: Async function 'createApprovalRequestForRule' has a complexity of 38. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3917: Async function 'createApprovalRequestForRule' has a complexity of 38. Maximum allowed is 7.",
+      "value": "server/server.js::3909: Arrow function has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3918: Arrow function has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4059: Async function 'handleApprovalConversation' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4068: Async function 'handleApprovalConversation' has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::4074: 'instances' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4083: 'instances' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4074: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4083: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4102: Async function 'handleApprovalReplyTicket' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4111: Async function 'handleApprovalReplyTicket' has a complexity of 18. Maximum allowed is 7.",
+      "value": "server/server.js::4125: 'instances' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4134: 'instances' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4125: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4134: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4166: Function 'parseExternalEventData' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4175: Function 'parseExternalEventData' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4202: Function 'findPendingApprovalAction' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4211: Function 'findPendingApprovalAction' has a complexity of 18. Maximum allowed is 7.",
+      "value": "server/server.js::4257: Async function 'handleApprovalActionEvent' has a complexity of 23. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4266: Async function 'handleApprovalActionEvent' has a complexity of 23. Maximum allowed is 7.",
+      "value": "server/server.js::4268: 'instances' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4277: 'instances' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4268: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4277: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4334: Async function 'recordSidebarApprovalDecision' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4343: Async function 'recordSidebarApprovalDecision' has a complexity of 18. Maximum allowed is 7.",
+      "value": "server/server.js::4357: 'instances' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4366: 'instances' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4357: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4366: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4426: Async function 'processTicketApprovalTrigger' has a complexity of 48. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4435: Async function 'processTicketApprovalTrigger' has a complexity of 48. Maximum allowed is 7.",
+      "value": "server/server.js::4521: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4530: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4626: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4635: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4774: Async method 'getApprovalDashboardData' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4783: Async method 'getApprovalDashboardData' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4894: Async method 'deleteApprovalRule' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4903: Async method 'deleteApprovalRule' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4981: Async method 'getTicketApprovalData' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4990: Async method 'getTicketApprovalData' has a complexity of 8. Maximum allowed is 7.",
-      "type": "lint"
-    },
-    {
-      "severity": 1,
-      "value": "server/server.js::5028: Async method 'evaluateTicketApprovalTrigger' has a complexity of 24. Maximum allowed is 7.",
+      "value": "server/server.js::5019: Async method 'evaluateTicketApprovalTrigger' has a complexity of 24. Maximum allowed is 7.",
       "type": "lint"
     }
   ],

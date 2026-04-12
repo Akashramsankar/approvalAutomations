@@ -11,7 +11,7 @@ const MAX_GATE_HISTORY = 300;
 const STATUS_GUARD_TTL_MS = 5 * 60 * 1000;
 const APPROVAL_ACTION_HOOK_OPTION = "approval-email-action";
 const EMAIL_ACTIONS_ENABLED = true;
-const DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL = "https://driveautomation.co";
+const DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL = "https://approval-bridge.onrender.com";
 
 const metadataCache = {
   value: null,
@@ -2995,7 +2995,7 @@ function buildMailtoButtonMarkup(targetEmail, instance, decision, label, palette
   return `<a href="${escapeHtml(href)}" style="${palette}">${escapeHtml(label)}</a>`;
 }
 
-function buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision, instance, approver) {
+function buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision) {
   const normalizedBridgeUrl = normalizeUrl(bridgeUrl);
   const normalizedHookUrl = normalizeText(hookUrl);
   const normalizedToken = normalizeText(token);
@@ -3009,17 +3009,12 @@ function buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision, instance, 
     hook: normalizedHookUrl,
     token: normalizedToken,
     decision: normalizedDecision,
-    ticket_id: String(Number(instance && instance.ticket_id) || 0),
-    request_id: normalizeText(instance && instance.id),
-    ticket_subject: normalizeText(instance && instance.ticket_subject),
-    rule_name: normalizeText(instance && instance.rule_name),
-    approver: normalizeText(approver && (approver.label || approver.email)),
   });
   return `${normalizedBridgeUrl}/approval${query ? `?${query}` : ""}`;
 }
 
-function buildBridgeButtonMarkup(bridgeUrl, hookUrl, token, decision, instance, approver, label, palette) {
-  const href = buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision, instance, approver);
+function buildBridgeButtonMarkup(bridgeUrl, hookUrl, token, decision, label, palette) {
+  const href = buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision);
   if (!href) {
     return "";
   }
@@ -3054,8 +3049,6 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
     normalizeText(actionConfig && actionConfig.external_action_url),
     encodeApprovalActionToken(instance && instance.id, approver && approver.email, "approved"),
     "approved",
-    instance,
-    approver,
     "Approve",
     [
       "display:inline-block",
@@ -3077,8 +3070,6 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
     normalizeText(actionConfig && actionConfig.external_action_url),
     encodeApprovalActionToken(instance && instance.id, approver && approver.email, "rejected"),
     "rejected",
-    instance,
-    approver,
     "Reject",
     [
       "display:inline-block",
