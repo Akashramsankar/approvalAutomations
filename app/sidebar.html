@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approval Tracker</title>
+  <script src="{{{appclient}}}"></script>
+  <link rel="stylesheet" href="https://static.freshdev.io/fdk/2.0/assets/freshworks.css">
+  <style>
+    :root {
+      --ink-strong: #10273d;
+      --ink: #17324d;
+      --ink-soft: #4e647d;
+      --surface: #ffffff;
+      --surface-muted: #fbfcfe;
+      --surface-subtle: #f4f7fb;
+      --border: #dde3ed;
+      --border-strong: #cfd9e7;
+      --primary: #17324d;
+      --primary-soft: #eef5ff;
+      --primary-border: #cfe0f5;
+      --primary-accent: #245b90;
+      --danger: #b42318;
+      --danger-soft: #fff4f2;
+      --success: #287a68;
+      --success-soft: #dff4ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 10px;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at top left, #ffffff 0, #f5f7fb 48%, #edf2f8 100%);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      max-width: 420px;
+      margin: 0 auto;
+      min-width: 0;
+    }
+
+    .shell {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(23, 50, 77, 0.08);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .head {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
+    .copy {
+      margin: 4px 0 0;
+      color: #62738a;
+      font-size: 11px;
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    .build-stamp {
+      margin-top: 8px;
+      color: #6b7c93;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .btn {
+      min-height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      padding: 0 10px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--surface);
+      box-shadow: 0 1px 2px rgba(16, 39, 61, 0.05);
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #eef4fb;
+      border-color: #9fb2ca;
+      box-shadow: 0 10px 22px rgba(23, 50, 77, 0.11);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #214264 0%, #17324d 100%);
+      border-color: #17324d;
+      color: #ffffff;
+      box-shadow: 0 10px 20px rgba(23, 50, 77, 0.16);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(180deg, #183552 0%, #10273d 100%);
+      border-color: #10273d;
+      color: #ffffff;
+    }
+
+    .btn-danger {
+      color: #9d2b22;
+      border-color: #efc7c2;
+      background: #fff4f2;
+      box-shadow: 0 1px 2px rgba(157, 43, 34, 0.05);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #ffe7e4;
+      border-color: #df9a92;
+      color: #7f221a;
+      box-shadow: 0 10px 22px rgba(157, 43, 34, 0.12);
+    }
+
+    .btn-compact {
+      min-height: 24px;
+      padding: 0 8px;
+      font-size: 11px;
+      border-radius: 999px;
+    }
+
+    .banner {
+      margin-bottom: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .banner-error {
+      background: #ffebe9;
+      border-color: #cf222e;
+      color: var(--danger);
+    }
+
+    .banner-info {
+      background: #eef5ff;
+      border-color: #9dc0e7;
+      color: #245b90;
+    }
+
+    .state {
+      padding: 28px 16px;
+      text-align: center;
+      color: #6b7c93;
+      font-size: 14px;
+      line-height: 1.6;
+      border: 1px dashed #d9e2ef;
+      border-radius: 12px;
+      background: #fbfcfe;
+    }
+
+    .row-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pill-approved {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .pill-rejected {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .pill-neutral {
+      background: #f3f6fb;
+      color: #62738a;
+    }
+
+    .approval-list-shell {
+      min-width: 0;
+    }
+
+    .approver-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .approver-row {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #e8edf5;
+      min-width: 0;
+    }
+
+    .approver-main {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #b6c6d4;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .status-approved {
+      background: var(--success);
+    }
+
+    .status-rejected {
+      background: var(--danger);
+    }
+
+    .status-pending {
+      background: var(--primary-accent);
+    }
+
+    .approver-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .approver-line {
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.4;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .approver-actions {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 100%;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 480px) {
+      .head {
+        display: grid;
+      }
+
+      .approver-row {
+        display: grid;
+      }
+
+      .approver-actions {
+        width: 100%;
+        justify-content: flex-start;
+        padding-left: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <div class="head">
+        <div>
+          <p class="eyebrow">Approval Tracker</p>
+          <p class="copy">Shows the latest approval flow for this ticket.</p>
+      <div class="build-stamp">Build 2026-04-11-approval-ui-r14</div>
+        </div>
+        <button class="btn" id="refreshBtn" type="button">Refresh</button>
+      </div>
+
+      <div id="messageBanner" class="banner hidden"></div>
+      <div id="loadingState" class="state">Loading approval details for this ticket...</div>
+      <div id="emptyState" class="state hidden">
+        No approval flow is active for this ticket right now.
+      </div>
+      <div id="approvalList" class="approval-list-shell hidden"></div>
+    </div>
+  </div>
+
+  <script src="./scripts/sidebar.js"></script>
+</body>
+</html>

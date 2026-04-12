@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approvals Automation Pro</title>
+  <script src="{{{appclient}}}"></script>
+  <link rel="stylesheet" href="https://static.freshdev.io/fdk/2.0/assets/freshworks.css">
+  <style>
+    :root {
+      --ink-strong: #10273d;
+      --ink: #17324d;
+      --ink-soft: #4e647d;
+      --surface: #ffffff;
+      --surface-muted: #fbfcfe;
+      --surface-subtle: #f4f7fb;
+      --border: #dde3ed;
+      --border-strong: #cfd9e7;
+      --primary: #17324d;
+      --primary-soft: #eef5ff;
+      --primary-border: #cfe0f5;
+      --primary-accent: #245b90;
+      --danger: #b42318;
+      --danger-soft: #fff4f2;
+      --danger-soft-hover: #ffe7e4;
+      --danger-border: #efc7c2;
+      --success: #287a68;
+      --success-soft: #dff4ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at top left, #ffffff 0, #f5f7fb 48%, #edf2f8 100%);
+      color: var(--ink);
+    }
+
+    body.rule-modal-open {
+      overflow: hidden;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .page {
+      max-width: 1380px;
+      margin: 0 auto;
+    }
+
+    .shell {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(23, 50, 77, 0.08);
+      padding: 22px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 26px;
+      font-weight: 800;
+      color: #17324d;
+      letter-spacing: -0.03em;
+    }
+
+    .subcopy {
+      margin: 0;
+      color: #62738a;
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 820px;
+    }
+
+    .build-stamp {
+      margin-top: 10px;
+      color: #6b7c93;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .action-bar,
+    .section-head,
+    .rule-top,
+    .rule-actions,
+    .inline-actions,
+    .rule-modal-footer {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .action-bar {
+      margin: 22px 0 0;
+    }
+
+    .metric-strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .metric-pill,
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid #dbe4ef;
+      background: #f3f6fb;
+      color: #4e647d;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .metric-pill strong {
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .btn {
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      padding: 0 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--surface);
+      box-shadow: 0 1px 2px rgba(16, 39, 61, 0.05);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #eef4fb;
+      border-color: #9fb2ca;
+      box-shadow: 0 10px 22px rgba(23, 50, 77, 0.11);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #214264 0%, #17324d 100%);
+      border-color: #17324d;
+      color: #ffffff;
+      box-shadow: 0 10px 20px rgba(23, 50, 77, 0.16);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(180deg, #183552 0%, #10273d 100%);
+      border-color: #10273d;
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: var(--surface-subtle);
+      border-color: #d6deea;
+      color: var(--ink);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #eaf0f8;
+      border-color: #adc0d7;
+    }
+
+    .btn-danger {
+      color: #9d2b22;
+      border-color: var(--danger-border);
+      background: var(--danger-soft);
+      box-shadow: 0 1px 2px rgba(157, 43, 34, 0.05);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: var(--danger-soft-hover);
+      border-color: #df9a92;
+      color: #7f221a;
+      box-shadow: 0 10px 22px rgba(157, 43, 34, 0.12);
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #17324d;
+    }
+
+    .panel-subcopy,
+    .helper {
+      color: #6b7c93;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .rule-list,
+    .activity-list,
+    .form-grid,
+    .condition-list,
+    .approver-list,
+    .option-panel-grid,
+    .summary-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .rule-list,
+    .activity-list {
+      margin-top: 14px;
+    }
+
+    .rule-card {
+      border: 1px solid #e8edf5;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 16px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .rule-card:hover {
+      border-color: #cfd9e7;
+      box-shadow: 0 14px 26px rgba(23, 50, 77, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .rule-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .pill-row,
+    .rule-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .rule-actions .btn {
+      min-width: 108px;
+    }
+
+    .pill-success {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .pill-warning {
+      background: var(--primary-soft);
+      color: var(--primary-accent);
+      border-color: var(--primary-border);
+    }
+
+    .pill-muted {
+      background: #f3f6fb;
+      color: #62738a;
+    }
+
+    .pill-danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: var(--danger-border);
+    }
+
+    .rule-body {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .rule-section,
+    .activity-item,
+    .form-card,
+    .condition-row,
+    .approver-builder,
+    .preview-card {
+      border: 1px solid #e8edf5;
+      border-radius: 12px;
+      background: #fbfcfe;
+    }
+
+    .rule-section,
+    .activity-item,
+    .form-card,
+    .preview-card {
+      padding: 14px;
+    }
+
+    .rule-section strong,
+    .card-kicker {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #4e647d;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .rule-section p,
+    .activity-item p,
+    .preview-card p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #284766;
+    }
+
+    .rule-top,
+    .activity-top {
+      align-items: flex-start;
+    }
+
+    .activity-item strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .form-card {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 17px;
+      color: var(--ink);
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field-wide {
+      grid-column: 1 / -1;
+    }
+
+    .field label,
+    .subheading {
+      font-size: 12px;
+      font-weight: 700;
+      color: #284766;
+    }
+
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid #cad4e3;
+      background: #ffffff;
+      padding: 10px 12px;
+      color: #17324d;
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+      outline: none;
+      border-color: #89a3c2;
+      box-shadow: 0 0 0 3px rgba(137, 163, 194, 0.18);
+    }
+
+    .select[multiple] {
+      min-height: 120px;
+    }
+
+    .textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #4e647d;
+      font-size: 13px;
+    }
+
+    .logic-panel {
+      display: grid;
+      gap: 14px;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #e8edf5;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+
+    .logic-title {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #4e647d;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .logic-copy {
+      margin: 0;
+      color: #6b7c93;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .logic-toggle {
+      display: inline-flex;
+      gap: 8px;
+      padding: 4px;
+      border-radius: 10px;
+      background: #f3f6fb;
+      border: 1px solid #dbe4ef;
+      width: fit-content;
+    }
+
+    .logic-option {
+      min-height: 36px;
+      border: none;
+      border-radius: 8px;
+      padding: 0 14px;
+      background: transparent;
+      color: #4e647d;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+
+    .logic-option.active {
+      background: #ffffff;
+      color: #17324d;
+      box-shadow: 0 2px 10px rgba(23, 50, 77, 0.08);
+    }
+
+    .condition-list {
+      margin-top: 2px;
+    }
+
+    .condition-row,
+    .approver-builder {
+      padding: 14px;
+    }
+
+    .option-panel,
+    .condition-card {
+      border: 1px solid #e8edf5;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 14px;
+    }
+
+    .option-panel h5,
+    .condition-header h5 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: #17324d;
+    }
+
+    .selection-copy {
+      margin: 0;
+      color: #6b7c93;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .checkbox-card {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #e8edf5;
+      background: #fbfcfe;
+      min-height: 56px;
+    }
+
+    .checkbox-card span {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #284766;
+    }
+
+    .selection-empty {
+      margin-top: 12px;
+      color: #6b7c93;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .trigger-card-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .trigger-card {
+      border: 1px solid #e8edf5;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 14px;
+    }
+
+    .trigger-card h4 {
+      margin: 0;
+      font-size: 15px;
+      color: #17324d;
+    }
+
+    .trigger-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      width: fit-content;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #f3f6fb;
+      border: 1px solid #dce6f3;
+      color: #4e647d;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .trigger-copy {
+      margin: 8px 0 0;
+      color: #6b7c93;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .condition-row-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .condition-header,
+    .condition-actions {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .condition-actions {
+      margin-top: 12px;
+      justify-content: flex-end;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 24px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #d3dfeb;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .chip button {
+      border: none;
+      background: transparent;
+      padding: 0;
+      color: #7f96ac;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .preview-card h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+      color: var(--ink);
+    }
+
+    .preview-card p {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .banner {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .banner-error {
+      background: #ffebe9;
+      border-color: #cf222e;
+      color: #b42318;
+    }
+
+    .banner-success {
+      background: #e7f7ea;
+      border-color: #0a6629;
+      color: #0a6629;
+    }
+
+    .state {
+      padding: 32px 18px;
+      text-align: center;
+      color: #6b7c93;
+      font-size: 14px;
+      border: 1px dashed #d9e2ef;
+      border-radius: 12px;
+      background: #fbfcfe;
+      margin-top: 14px;
+    }
+
+    .panel-block {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid #e8edf5;
+      border-radius: 14px;
+      background: rgba(251, 252, 254, 0.92);
+    }
+
+    .rule-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.38);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+    }
+
+    .rule-modal-overlay.visible {
+      display: flex;
+    }
+
+    .rule-modal-card {
+      width: min(1120px, 100%);
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid rgba(219, 227, 236, 0.92);
+      box-shadow: 0 22px 42px rgba(23, 50, 77, 0.18);
+      overflow: hidden;
+      position: relative;
+      z-index: 10000;
+    }
+
+    .rule-modal-header,
+    .rule-modal-footer {
+      padding: 16px 18px;
+      border-bottom: 1px solid #e7edf5;
+    }
+
+    .rule-modal-footer {
+      border-bottom: none;
+      border-top: 1px solid #e7edf5;
+    }
+
+    .rule-modal-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      color: #17324d;
+      letter-spacing: -0.02em;
+    }
+
+    .rule-modal-copy {
+      margin: 8px 0 0;
+      color: #6b7c93;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    .rule-modal-body {
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .modal-footer-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .activity-top {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .activity-meta,
+    .rule-meta {
+      color: #6b7c93;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .activity-copy {
+      margin-top: 10px !important;
+    }
+
+    .activity-meta {
+      margin-top: 6px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .rule-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+      }
+
+      .shell,
+      .rule-modal-header,
+      .rule-modal-body,
+      .rule-modal-footer {
+        padding: 18px;
+      }
+
+      .eyebrow,
+      .section-title,
+      .rule-modal-title {
+        font-size: 22px;
+      }
+
+      .field-grid,
+      .condition-row-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-bar,
+      .section-head,
+      .rule-top,
+      .activity-top {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="shell">
+      <h1 class="eyebrow">Approvals Automation Pro</h1>
+      <p class="subcopy">Build approval rules around watched status changes and optional entry conditions. When a rule fires, approval emails go out immediately and the ticket closes automatically after the approval is completed.</p>
+      <div class="build-stamp">Build 2026-04-12-dashboard-ui-r23</div>
+
+      <div class="action-bar">
+        <div class="inline-actions">
+          <button id="createRuleBtn" class="btn btn-primary" type="button">Create Rule</button>
+          <button id="refreshBtn" class="btn btn-secondary" type="button">Refresh Rules</button>
+        </div>
+        <div class="metric-strip">
+          <span class="metric-pill">Total rules <strong id="totalRulesValue">0</strong></span>
+          <span class="metric-pill">Active rules <strong id="activeRulesValue">0</strong></span>
+          <span class="metric-pill">Pending approvals <strong id="pendingApprovalsValue">0</strong></span>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Saved Rules</h2>
+            <p class="panel-subcopy">Approval rules, watched statuses, approvers, delivery settings, and auto-close behavior are all managed here.</p>
+          </div>
+        </div>
+
+        <div id="globalError" class="banner banner-error hidden"></div>
+        <div id="globalSuccess" class="banner banner-success hidden"></div>
+        <div id="rulesLoading" class="state">Loading approval rules and Freshdesk metadata...</div>
+        <div id="rulesEmpty" class="state hidden">No rules found yet.</div>
+        <div id="rulesList" class="rule-list hidden"></div>
+      </div>
+
+      <div class="panel-block">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" style="font-size:22px;">Recent Approval Activity</h2>
+            <p class="panel-subcopy">The latest approval requests created when a ticket matched one of your approval rules.</p>
+          </div>
+        </div>
+        <div id="recentActivityEmpty" class="state hidden">Approval activity will appear here after a ticket matches one of your rules.</div>
+        <div id="recentActivityList" class="activity-list hidden"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="ruleModal" class="rule-modal-overlay" aria-hidden="true">
+    <div class="rule-modal-card" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <div class="rule-modal-header">
+        <h3 id="formTitle" class="rule-modal-title">Create Rule</h3>
+        <p id="formCopy" class="rule-modal-copy">Pick the watched statuses, define any early entry conditions, choose approvers, and customize the outgoing email.</p>
+      </div>
+
+      <div class="rule-modal-body">
+        <div id="formMessage" class="banner hidden"></div>
+
+        <form id="ruleForm" class="form-grid">
+          <section class="form-card">
+            <div>
+              <span class="card-kicker">Rule Setup</span>
+              <h3 class="card-title">Basics</h3>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="ruleNameInput">Rule name</label>
+                <input class="input" id="ruleNameInput" type="text" placeholder="Example: Approval for enterprise cancellations">
+                <div class="helper">Use a name that makes sense in the dashboard and ticket sidebar.</div>
+              </div>
+              <div class="field">
+                <label for="ruleActiveInput">Activation</label>
+                <label class="toggle">
+                  <input id="ruleActiveInput" type="checkbox" checked>
+                  <span>Enable this rule immediately</span>
+                </label>
+                <div class="helper">Paused rules stay saved but do not create approval requests.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-card">
+            <div>
+              <span class="card-kicker">Automation Triggers</span>
+              <h3 class="card-title">When Approval Starts</h3>
+            </div>
+            <div class="trigger-card-grid">
+              <article class="trigger-card">
+                <span class="trigger-tag">Primary Trigger</span>
+                <h4>Status Change</h4>
+                <p class="trigger-copy">This is the most important automation trigger. Approval starts when the ticket status changes into one of the watched statuses below.</p>
+                <div class="option-panel-grid" style="margin-top:14px;">
+                  <section class="option-panel">
+                    <h5>If status changes into</h5>
+                    <p class="selection-copy">Choose one or many statuses to watch. This trigger always remains active for the rule.</p>
+                    <div id="statusValuesChecklist" class="checkbox-grid"></div>
+                  </section>
+                </div>
+              </article>
+
+              <article class="trigger-card">
+                <span class="trigger-tag">Optional Trigger</span>
+                <h4>Entry Conditions</h4>
+                <p class="trigger-copy">Use this if approval should start earlier, before the ticket reaches one of the watched status changes.</p>
+                <div class="logic-panel">
+                  <div>
+                    <strong class="logic-title">Condition Matching</strong>
+                    <p class="logic-copy">Choose whether all entry conditions must match or whether any one of them can start approval early.</p>
+                  </div>
+                  <div class="logic-toggle" role="group" aria-label="Condition matching">
+                    <button class="logic-option" id="operatorAndBtn" type="button" data-condition-operator="and">All Must Match</button>
+                    <button class="logic-option" id="operatorOrBtn" type="button" data-condition-operator="or">Any Can Match</button>
+                  </div>
+                </div>
+                <div id="conditionsContainer" class="condition-list"></div>
+                <div class="inline-actions" style="margin-top:12px;">
+                  <button class="btn btn-secondary" id="addConditionBtn" type="button">Add Condition</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="form-card">
+            <div>
+              <span class="card-kicker">Approvers</span>
+              <h3 class="card-title">Who Needs To Approve</h3>
+            </div>
+            <div class="approver-builder">
+              <div class="field">
+                <label>Choose from Freshdesk agent emails</label>
+                <section class="option-panel">
+                  <h5>Freshdesk Agent Approvers</h5>
+                  <p class="selection-copy">Use the same checkbox-card pattern as the dropdown app to choose one or many agent approvers.</p>
+                  <div id="agentApproverChecklist" class="checkbox-grid"></div>
+                </section>
+              </div>
+
+              <div class="field">
+                <label for="externalEmailInput">Add external approver email</label>
+                <div class="inline-actions">
+                  <input class="input" id="externalEmailInput" type="email" placeholder="approver@company.com">
+                  <button class="btn btn-secondary" id="addExternalEmailBtn" type="button">Add Email</button>
+                </div>
+                <div class="helper">External approvers do not need to exist as Freshdesk agents.</div>
+              </div>
+
+              <div class="field">
+                <label>Selected approvers</label>
+                <div id="selectedApprovers" class="chip-row"></div>
+              </div>
+
+              <label class="toggle">
+                <input id="anyoneCanApproveInput" type="checkbox">
+                <span>Approval from anyone is enough</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-card">
+            <div>
+              <span class="card-kicker">Email</span>
+              <h3 class="card-title">Delivery And Message</h3>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="senderEmailSelect">3. Send email from</label>
+                <select class="select" id="senderEmailSelect"></select>
+                <div class="helper">This list comes from the Freshdesk support mailboxes registered in the account.</div>
+              </div>
+              <div class="field">
+                <label for="emailSubjectInput">Email subject</label>
+                <input class="input" id="emailSubjectInput" type="text" placeholder="Approval required for {{ticket_id}}">
+                <div class="helper">Supported placeholders: <span id="placeholderInlineText"></span></div>
+              </div>
+              <div class="field field-wide">
+                <label for="emailBodyInput">4. Approval email message</label>
+                <textarea class="textarea" id="emailBodyInput" placeholder="Approval has been requested for ticket {{ticket_id}}.&#10;&#10;Subject: {{ticket_subject}}&#10;Current status: {{ticket_status}}"></textarea>
+                <div class="helper">One-click approve/reject actions are added automatically, and email replies remain as a fallback.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="preview-card">
+            <h3>Rule Preview</h3>
+            <p id="rulePreviewText">Choose watched statuses, define the entry conditions, and the preview will update here.</p>
+          </section>
+        </form>
+      </div>
+
+      <div class="rule-modal-footer">
+        <span class="helper">Approval rules can start from status change or optional entry conditions, and the ticket is closed automatically after the approval is completed.</span>
+        <div class="modal-footer-actions">
+          <button class="btn btn-secondary" id="resetFormBtn" type="button">Clear Form</button>
+          <button class="btn btn-secondary" id="cancelEditBtn" type="button">Cancel</button>
+          <button class="btn btn-primary" id="saveRuleBtn" type="submit" form="ruleForm">Save Rule</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./scripts/app.js"></script>
+</body>
+</html>

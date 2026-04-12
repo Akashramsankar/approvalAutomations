@@ -1,0 +1,75 @@
+{
+  "platform-version": "3.0",
+  "modules": {
+    "common": {
+      "requests": {
+        "verify_freshdesk_credentials": {},
+        "list_admin_ticket_fields": {},
+        "list_admin_fields_all": {},
+        "list_ticket_fields": {},
+        "get_admin_ticket_field": {},
+        "list_groups": {},
+        "list_agents": {},
+        "list_email_mailboxes": {},
+        "list_email_configs": {},
+        "forward_ticket_email": {},
+        "add_ticket_note": {},
+        "update_ticket": {}
+      },
+      "functions": {
+        "getApprovalDashboardData": {},
+        "saveApprovalRule": {},
+        "deleteApprovalRule": {},
+        "syncLiveTicketFieldMetadata": {},
+        "getTicketApprovalData": {},
+        "evaluateTicketApprovalTrigger": {},
+        "submitSidebarApprovalDecision": {}
+      },
+      "events": {
+        "onAppInstall": {
+          "handler": "onAppInstallHandler"
+        },
+        "onExternalEvent": {
+          "handler": "onExternalEventHandler"
+        }
+      },
+      "location": {
+        "full_page_app": {
+          "url": "index.html",
+          "icon": "icon.svg"
+        }
+      }
+    },
+    "support_ticket": {
+      "location": {
+        "ticket_background": {
+          "url": "runtime.html",
+          "icon": "icon.svg"
+        },
+        "ticket_sidebar": {
+          "url": "sidebar.html",
+          "icon": "icon.svg"
+        }
+      },
+      "events": {
+        "onTicketCreate": {
+          "handler": "onTicketCreateHandler"
+        },
+        "onTicketUpdate": {
+          "handler": "onTicketUpdateHandler"
+        },
+        "onConversationCreate": {
+          "handler": "onConversationCreateHandler"
+        }
+      }
+    }
+  },
+  "engines": {
+    "node": "24.11.0",
+    "fdk": "10.0.1"
+  },
+  "app": {
+    "tracking_id": "s9hytuyr897n65hk7927",
+    "start_time": "2025-06-07T14:05:19.420Z"
+  }
+}
