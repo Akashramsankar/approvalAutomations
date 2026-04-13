@@ -1,5 +1,5 @@
 let client;
-const BUILD_ID = "2026-04-12-dashboard-ui-r23";
+const BUILD_ID = "2026-04-13-dashboard-ui-r24";
 
 const INVOKE_TIMEOUT_MS = 15000;
 const BUILT_IN_TRIGGER_FIELD_IDS = new Set(["status", "priority", "ticket_type", "type", "group", "agent", "source"]);
@@ -55,6 +55,7 @@ function createEmptyForm() {
     conditions: [],
     approvers: [],
     anyoneCanApprove: false,
+    autoCloseAfterApproval: false,
     senderEmail: "",
     emailSubject: "Approval required for {{ticket_id}}",
     emailBody: [
@@ -115,6 +116,11 @@ function bindStaticEvents() {
 
   document.getElementById("anyoneCanApproveInput").addEventListener("change", (event) => {
     state.form.anyoneCanApprove = Boolean(event.target.checked);
+    renderPreview();
+  });
+
+  document.getElementById("autoCloseAfterApprovalInput").addEventListener("change", (event) => {
+    state.form.autoCloseAfterApproval = Boolean(event.target.checked);
     renderPreview();
   });
 
@@ -508,6 +514,7 @@ function renderForm() {
   document.getElementById("operatorOrBtn").classList.toggle("active", state.form.conditionOperator === "or");
   document.getElementById("operatorOrBtn").setAttribute("aria-pressed", state.form.conditionOperator === "or" ? "true" : "false");
   document.getElementById("anyoneCanApproveInput").checked = Boolean(state.form.anyoneCanApprove);
+  document.getElementById("autoCloseAfterApprovalInput").checked = Boolean(state.form.autoCloseAfterApproval);
   document.getElementById("emailSubjectInput").value = state.form.emailSubject;
   document.getElementById("emailBodyInput").value = state.form.emailBody;
   document.getElementById("saveRuleBtn").disabled = state.saving || state.loading;
@@ -689,7 +696,7 @@ function renderPreview() {
     `Approvers: ${state.form.approvers.length ? state.form.approvers.map((approver) => approver.email).join(", ") : "None selected"}`,
     `Approval mode: ${state.form.anyoneCanApprove ? "Anyone can approve" : "Everyone must approve"}`,
     `Sender email: ${state.form.senderEmail || "None selected"}`,
-    `After request is sent: Ticket closes automatically`,
+    `After approval completes: ${state.form.autoCloseAfterApproval ? "Ticket closes automatically" : "Leave the ticket status unchanged"}`,
     "",
     `Email subject preview: ${renderTemplatePreview(state.form.emailSubject || "Approval required for {{ticket_id}}")}`,
     "",
@@ -1021,6 +1028,7 @@ function ruleToForm(rule) {
       type: approver.type || "external",
     })),
     anyoneCanApprove: Boolean(rule.anyone_can_approve),
+    autoCloseAfterApproval: rule.auto_close_after_approval !== false,
     senderEmail: rule.sender_email || "",
     emailSubject: rule.email_subject || "",
     emailBody: rule.email_body || "",
@@ -1044,6 +1052,7 @@ function formToPayload() {
       type: approver.type,
     })),
     anyone_can_approve: Boolean(state.form.anyoneCanApprove),
+    auto_close_after_approval: Boolean(state.form.autoCloseAfterApproval),
     sender_email: state.form.senderEmail,
     email_subject: state.form.emailSubject.trim(),
     email_body: state.form.emailBody.trim(),
@@ -1261,16 +1270,28 @@ function buildTriggerSummary(rule) {
     ? rule.summary.status_text
     : "the selected watched status";
   const extraConditions = Array.isArray(rule.conditions) ? rule.conditions : [];
+  const autoCloseEnabled = rule ? rule.auto_close_after_approval !== false : false;
+  const completionText = autoCloseEnabled
+    ? "the ticket closes automatically after approval is completed"
+    : "the ticket stays on its current status after approval is completed";
 
   if (!extraConditions.length) {
-    return `Primary trigger: if status changes into ${statusText}, approval is requested and the ticket closes automatically after approval is completed.`;
+    return `Primary trigger: if status changes into ${statusText}, approval is requested and ${completionText}.`;
   }
 
-  return `Primary trigger: if status changes into ${statusText}, approval is requested. Optional trigger: matching entry conditions can also start approval earlier, and the ticket closes automatically after approval is completed.`;
+  return `Primary trigger: if status changes into ${statusText}, approval is requested. Optional trigger: matching entry conditions can also start approval earlier, and ${completionText}.`;
 }
 
 function getAutoCloseSummary(instance) {
-  if (!instance || !instance.auto_close_state) {
+  if (!instance) {
+    return "Auto-close pending.";
+  }
+
+  if (instance.auto_close_state === "disabled" || instance.auto_close_after_approval === false) {
+    return "Auto-close disabled for this rule.";
+  }
+
+  if (!instance.auto_close_state) {
     return "Auto-close pending.";
   }
 

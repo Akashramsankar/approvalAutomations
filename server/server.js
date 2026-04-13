@@ -2072,6 +2072,12 @@ function sanitizeRulePayload(payload, supportData, existingRule) {
         ? payload.anyone_can_approve
         : existingRule && existingRule.anyone_can_approve
     ),
+    auto_close_after_approval:
+      payload.auto_close_after_approval !== undefined
+        ? normalizeBoolean(payload.auto_close_after_approval)
+        : existingRule
+          ? existingRule.auto_close_after_approval !== false
+          : false,
     sender_email: senderEmail,
     email_subject:
       normalizeText(payload.email_subject) ||
@@ -2695,6 +2701,7 @@ function createApprovalInstance(rule, ticket, domain, matchContext) {
   const ticketUrl = domain && ticket && ticket.id
     ? `https://${domain}/a/tickets/${ticket.id}`
     : "";
+  const autoCloseAfterApproval = rule && rule.auto_close_after_approval !== false;
 
   const approvers = (rule.approvers || []).map((approver) => {
     return buildPendingApproverFromRule(approver, null);
@@ -2715,6 +2722,7 @@ function createApprovalInstance(rule, ticket, domain, matchContext) {
     ticket_url: ticketUrl,
     sender_email: rule.sender_email,
     approval_mode: rule.anyone_can_approve ? "anyone" : "everyone",
+    auto_close_after_approval: autoCloseAfterApproval,
     trigger_reason: normalizeText(matchContext && matchContext.trigger_reason) || "status_change",
     trigger_field_ids: dedupeStrings(matchContext && matchContext.changed_field_ids),
     condition_snapshot: buildConditionSnapshot(rule, matchContext && matchContext.snapshot),
@@ -2723,7 +2731,7 @@ function createApprovalInstance(rule, ticket, domain, matchContext) {
     email_error: "",
     approvers,
     matched_conditions: (matchContext.matched_conditions || []).map((condition) => summarizeCondition(condition)),
-    auto_close_state: "not_attempted",
+    auto_close_state: autoCloseAfterApproval ? "not_attempted" : "disabled",
     auto_close_status: "",
     auto_close_status_label: "",
     auto_close_error: "",
@@ -2823,6 +2831,27 @@ function syncPendingInstanceWithRule(instance, rule) {
   const nextApprovalMode = rule && rule.anyone_can_approve ? "anyone" : "everyone";
   if (normalizeText(instance.approval_mode) !== nextApprovalMode) {
     instance.approval_mode = nextApprovalMode;
+    changed = true;
+  }
+
+  const nextAutoCloseAfterApproval = rule && rule.auto_close_after_approval !== false;
+  if (Boolean(instance.auto_close_after_approval) !== Boolean(nextAutoCloseAfterApproval)) {
+    instance.auto_close_after_approval = nextAutoCloseAfterApproval;
+    changed = true;
+  }
+
+  if (nextAutoCloseAfterApproval && normalizeLower(instance.auto_close_state) === "disabled") {
+    instance.auto_close_state = "not_attempted";
+    changed = true;
+  }
+
+  if (!nextAutoCloseAfterApproval && ["", "not_attempted", "disabled"].includes(normalizeLower(instance.auto_close_state))) {
+    instance.auto_close_state = "disabled";
+    instance.auto_close_status = "";
+    instance.auto_close_status_label = "";
+    instance.auto_close_error = "";
+    instance.auto_close_attempted_at = 0;
+    instance.auto_closed_at = 0;
     changed = true;
   }
 
@@ -3330,6 +3359,24 @@ async function maybeAutoCloseApprovedInstance(instance) {
     };
   }
 
+  if (instance.auto_close_after_approval === false) {
+    if (normalizeLower(instance.auto_close_state) !== "disabled") {
+      applyAutoCloseResultToInstances([instance], {
+        state: "disabled",
+        status_value: "",
+        status_label: "",
+        error: "",
+        attempted_at: 0,
+        closed_at: 0,
+      });
+    }
+
+    return {
+      attempted: false,
+      note: "",
+    };
+  }
+
   if (["closed", "already_closed"].includes(normalizeLower(instance.auto_close_state))) {
     return {
       attempted: false,
@@ -3605,6 +3652,7 @@ function summarizeInstance(instance) {
   return {
     ...instance,
     approvers: publicApprovers,
+    auto_close_after_approval: instance.auto_close_after_approval !== false,
     approved_count: approvedCount,
     rejected_count: rejectedCount,
     pending_count: pendingCount,

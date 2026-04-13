@@ -813,7 +813,7 @@
   <div class="page">
     <section class="shell">
       <h1 class="eyebrow">Approvals Automation Pro</h1>
-      <p class="subcopy">Build approval rules around watched status changes and optional entry conditions. When a rule fires, approval emails go out immediately and the ticket closes automatically after the approval is completed.</p>
+      <p class="subcopy">Build approval rules around watched status changes and optional entry conditions. When a rule fires, approval emails go out immediately, and you can choose whether the ticket should auto-close after approval is completed.</p>
       <div class="build-stamp">Build 2026-04-12-dashboard-ui-r23</div>
 
       <div class="action-bar">
@@ -983,6 +983,14 @@
                 <div class="helper">Supported placeholders: <span id="placeholderInlineText"></span></div>
               </div>
               <div class="field field-wide">
+                <label for="autoCloseAfterApprovalInput">After approval completes</label>
+                <label class="toggle">
+                  <input id="autoCloseAfterApprovalInput" type="checkbox">
+                  <span>Automatically close the ticket when this approval is approved</span>
+                </label>
+                <div class="helper">Leave this off if approval should only unblock the workflow and the ticket status should stay as-is.</div>
+              </div>
+              <div class="field field-wide">
                 <label for="emailBodyInput">4. Approval email message</label>
                 <textarea class="textarea" id="emailBodyInput" placeholder="Approval has been requested for ticket {{ticket_id}}.&#10;&#10;Subject: {{ticket_subject}}&#10;Current status: {{ticket_status}}"></textarea>
                 <div class="helper">One-click approve/reject actions are added automatically, and email replies remain as a fallback.</div>
@@ -998,7 +1006,7 @@
       </div>
 
       <div class="rule-modal-footer">
-        <span class="helper">Approval rules can start from status change or optional entry conditions, and the ticket is closed automatically after the approval is completed.</span>
+        <span class="helper">Approval rules can start from status change or optional entry conditions, and auto-close is now controlled per rule.</span>
         <div class="modal-footer-actions">
           <button class="btn btn-secondary" id="resetFormBtn" type="button">Clear Form</button>
           <button class="btn btn-secondary" id="cancelEditBtn" type="button">Cancel</button>
