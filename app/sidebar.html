@@ -84,15 +84,6 @@
       max-width: 280px;
     }
 
-    .build-stamp {
-      margin-top: 8px;
-      color: #6b7c93;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
     .btn {
       min-height: 34px;
       border-radius: 10px;
@@ -216,6 +207,55 @@
       min-width: 0;
     }
 
+    .approval-progress {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .approval-progress-top {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .approval-progress-label {
+      color: var(--ink);
+      font-size: 11px;
+      line-height: 1.4;
+      font-weight: 800;
+      min-width: 0;
+    }
+
+    .approval-progress-meta {
+      color: #62738a;
+      font-size: 10px;
+      line-height: 1.4;
+      font-weight: 800;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .approval-progress-track {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e8eef7;
+      box-shadow: inset 0 0 0 1px rgba(23, 50, 77, 0.04);
+    }
+
+    .approval-progress-fill {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2d6aa4 0%, #17324d 100%);
+      transition: width 0.24s ease;
+    }
+
     .approver-list {
       display: grid;
       gap: 8px;
@@ -315,7 +355,6 @@
         <div>
           <p class="eyebrow">Approval Tracker</p>
           <p class="copy">Shows the latest approval flow for this ticket.</p>
-      <div class="build-stamp">Build 2026-04-11-approval-ui-r14</div>
         </div>
         <button class="btn" id="refreshBtn" type="button">Refresh</button>
       </div>

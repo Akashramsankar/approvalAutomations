@@ -1,5 +1,4 @@
 let client;
-const BUILD_ID = "2026-04-12-live-field-runtime-r1";
 const INVOKE_TIMEOUT_MS = 15000;
 
 const state = {
@@ -11,7 +10,6 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   try {
-    console.log(`[ApprovalsAutomation] runtime_build_loaded ${BUILD_ID}`);
     client = await app.initialized();
     await syncLiveFieldMetadata({ force: true });
 
@@ -183,13 +181,8 @@ async function fetchFieldOptions(fieldName) {
       if (options.length) {
         return options;
       }
-    } catch (error) {
-      console.warn("[ApprovalsAutomation] runtime_field_options_failed", {
-        ticket_id: state.ticketId,
-        field_name: fieldName,
-        object_name: objectName,
-        error: resolveErrorMessage(error, "Unable to load field options."),
-      });
+    } catch {
+      // Some ticket fields do not expose a matching *_options object in the runtime data API.
     }
   }
 
@@ -248,12 +241,6 @@ async function syncLiveFieldMetadata(options) {
 
   try {
     const fields = await buildLiveFields(ticket);
-    console.log("[ApprovalsAutomation] runtime_live_field_sync_started", {
-      ticket_id: state.ticketId,
-      field_count: fields.length,
-      field_names: fields.map((field) => field.name),
-    });
-
     const response = await invokeWithTimeout("syncLiveTicketFieldMetadata", {
       ticket_id: state.ticketId,
       fields,
@@ -264,10 +251,6 @@ async function syncLiveFieldMetadata(options) {
     }
 
     state.syncSignature = signature;
-    console.log("[ApprovalsAutomation] runtime_live_field_sync_succeeded", {
-      ticket_id: state.ticketId,
-      field_count: fields.length,
-    });
   } catch (error) {
     console.error("Failed to sync live field metadata from runtime:", error);
   }
@@ -312,16 +295,4 @@ function resolveInvokeError(payload) {
   }
 
   return payload.detail || payload.message || "";
-}
-
-function resolveErrorMessage(error, fallback) {
-  if (!error) {
-    return fallback;
-  }
-
-  if (typeof error === "string") {
-    return error;
-  }
-
-  return error.message || fallback;
 }

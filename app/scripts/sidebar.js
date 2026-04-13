@@ -1,6 +1,5 @@
 let client;
 let refreshIntervalId;
-const BUILD_ID = "2026-04-12-approval-ui-r15";
 
 const INVOKE_TIMEOUT_MS = 15000;
 const AUTO_REFRESH_MS = 10000;
@@ -41,16 +40,12 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   try {
-    console.log(`[ApprovalsAutomation] sidebar_build_loaded ${BUILD_ID}`);
     client = await app.initialized();
     bindEvents();
     await loadSidebar();
 
     client.events.on("app.activated", async () => {
       await resolveTicketContext();
-      console.log("[ApprovalsAutomation] sidebar_app_activated", {
-        ticket_id: state.ticketId,
-      });
       void loadSidebar({ silent: true });
     });
 
@@ -73,7 +68,7 @@ function bindEvents() {
 
   TRACKED_TICKET_EVENTS.forEach(({ eventName, fieldId }) => {
     client.events.on(eventName, (event) => {
-      void handleTicketFieldChanged(fieldId, eventName, event);
+      void handleTicketFieldChanged(fieldId, event);
     });
   });
 
@@ -132,10 +127,6 @@ async function loadSidebar(options) {
 
   try {
     void syncLiveTicketFieldMetadata({ force: ticketChanged });
-    console.log("[ApprovalsAutomation] sidebar_load_started", {
-      ticket_id: state.ticketId,
-      silent: Boolean(options && options.silent),
-    });
     const response = await invokeWithTimeout("getTicketApprovalData", {
       ticket_id: requestTicketId,
     });
@@ -150,11 +141,6 @@ async function loadSidebar(options) {
     }
 
     state.instances = sortInstances(Array.isArray(payload.instances) ? payload.instances : []);
-    console.log("[ApprovalsAutomation] sidebar_load_succeeded", {
-      ticket_id: requestTicketId,
-      instance_count: state.instances.length,
-      instance_ids: state.instances.map((instance) => instance.id),
-    });
   } catch (error) {
     if (loadToken !== state.loadRequestToken || requestTicketId !== state.ticketId) {
       return;
@@ -212,6 +198,7 @@ function renderApprovalList() {
 
   const primaryInstance = getPrimaryInstance(state.instances);
   approvalList.innerHTML = `
+    ${renderApprovalProgress(primaryInstance)}
     <div class="approver-list">
       ${(primaryInstance.approvers || []).map((approver) => renderApproverRow(primaryInstance, approver)).join("")}
     </div>
@@ -272,6 +259,59 @@ function getPrimaryInstance(instances) {
   return pendingInstance || (instances || [])[0];
 }
 
+function getApprovalProgressMetrics(instance) {
+  const approvers = Array.isArray(instance && instance.approvers) ? instance.approvers : [];
+  const total = approvers.length;
+  const approved = Number(instance && instance.approved_count) || approvers.filter((approver) => approver && approver.status === "approved").length;
+  const rejected = Number(instance && instance.rejected_count) || approvers.filter((approver) => approver && approver.status === "rejected").length;
+  const pending = Number(instance && instance.pending_count) || Math.max(total - approved - rejected, 0);
+  const reviewed = approved + rejected;
+  const percent = total ? Math.round((reviewed / total) * 100) : 0;
+
+  return {
+    total,
+    approved,
+    rejected,
+    pending,
+    reviewed,
+    percent,
+  };
+}
+
+function renderApprovalProgress(instance) {
+  const metrics = getApprovalProgressMetrics(instance);
+  let label = `${metrics.approved} of ${metrics.total} approved`;
+  if (!metrics.total) {
+    label = "No approvers assigned";
+  } else if (metrics.rejected > 0) {
+    label = `${metrics.reviewed} of ${metrics.total} reviewed`;
+  } else if (metrics.approved === metrics.total) {
+    label = `${metrics.total} of ${metrics.total} approved`;
+  }
+
+  let meta = "Waiting to start";
+  if (metrics.total) {
+    meta = `${metrics.pending} pending`;
+    if (!metrics.pending && metrics.rejected > 0) {
+      meta = `${metrics.rejected} rejected`;
+    } else if (!metrics.pending) {
+      meta = "Complete";
+    }
+  }
+
+  return `
+    <div class="approval-progress">
+      <div class="approval-progress-top">
+        <span class="approval-progress-label">${label}</span>
+        <span class="approval-progress-meta">${meta}</span>
+      </div>
+      <div class="approval-progress-track" aria-hidden="true">
+        <span class="approval-progress-fill" style="width:${metrics.percent}%"></span>
+      </div>
+    </div>
+  `;
+}
+
 function getApproverStateMeta(value) {
   if (value === "approved") {
     return {
@@ -317,7 +357,7 @@ function renderApproverRow(instance, approver) {
   `;
 }
 
-async function handleTicketFieldChanged(fieldId, eventName, event) {
+async function handleTicketFieldChanged(fieldId, event) {
   const eventData = await resolveEventData(event);
   const oldValue = normalizeTicketEventValue(fieldId, eventData && eventData.old);
   const newValue = normalizeTicketEventValue(fieldId, eventData && eventData.new);
@@ -328,26 +368,11 @@ async function handleTicketFieldChanged(fieldId, eventName, event) {
     new: newValue,
     captured_at: Date.now(),
   };
-
-  console.log("[ApprovalsAutomation] sidebar_field_changed", {
-    ticket_id: state.ticketId,
-    event_name: eventName,
-    field: fieldId,
-    old: oldValue,
-    new: newValue,
-    raw_event_data: eventData,
-  });
 }
 
 async function handleTicketPropertiesUpdated(event) {
   const eventData = await resolveEventData(event);
   const syntheticChanges = buildSyntheticChangesPayload();
-
-  console.log("[ApprovalsAutomation] sidebar_properties_updated", {
-    ticket_id: state.ticketId,
-    event_data: eventData,
-    synthetic_changes: syntheticChanges,
-  });
 
   void startPostUpdateProbe(eventData, syntheticChanges);
 }
@@ -357,13 +382,6 @@ async function startPostUpdateProbe(eventData, syntheticChanges) {
   const probeToken = state.postUpdateProbeToken;
   const baselineSignature = buildInstanceSignature(state.instances);
 
-  console.log("[ApprovalsAutomation] sidebar_post_update_probe_started", {
-    ticket_id: state.ticketId,
-    probe_token: probeToken,
-    baseline_signature: baselineSignature,
-    synthetic_changes: syntheticChanges,
-  });
-
   for (let attempt = 1; attempt <= POST_UPDATE_REFRESH_ATTEMPTS; attempt += 1) {
     if (probeToken !== state.postUpdateProbeToken) {
       return;
@@ -372,21 +390,7 @@ async function startPostUpdateProbe(eventData, syntheticChanges) {
     await loadSidebar({ silent: true, keepMessage: true });
     const currentSignature = buildInstanceSignature(state.instances);
 
-    console.log("[ApprovalsAutomation] sidebar_post_update_probe_attempt", {
-      ticket_id: state.ticketId,
-      probe_token: probeToken,
-      attempt,
-      current_signature: currentSignature,
-      instance_count: state.instances.length,
-    });
-
     if (currentSignature && currentSignature !== baselineSignature) {
-      console.log("[ApprovalsAutomation] sidebar_post_update_probe_resolved", {
-        ticket_id: state.ticketId,
-        probe_token: probeToken,
-        attempt,
-        current_signature: currentSignature,
-      });
       clearPendingFieldChanges();
       return;
     }
@@ -395,17 +399,11 @@ async function startPostUpdateProbe(eventData, syntheticChanges) {
       attempt === POST_UPDATE_FALLBACK_ATTEMPT &&
       shouldInvokeFallbackTrigger(syntheticChanges, eventData)
     ) {
-      await invokeFallbackTriggerEvaluation(syntheticChanges, eventData, attempt);
+      await invokeFallbackTriggerEvaluation(syntheticChanges, eventData);
       await loadSidebar({ silent: true, keepMessage: true });
 
       const afterFallbackSignature = buildInstanceSignature(state.instances);
       if (afterFallbackSignature && afterFallbackSignature !== baselineSignature) {
-        console.log("[ApprovalsAutomation] sidebar_post_update_probe_resolved_after_fallback", {
-          ticket_id: state.ticketId,
-          probe_token: probeToken,
-          attempt,
-          current_signature: afterFallbackSignature,
-        });
         clearPendingFieldChanges();
         return;
       }
@@ -415,27 +413,12 @@ async function startPostUpdateProbe(eventData, syntheticChanges) {
       await delay(POST_UPDATE_REFRESH_MS);
     }
   }
-
-  console.warn("[ApprovalsAutomation] sidebar_post_update_probe_exhausted", {
-    ticket_id: state.ticketId,
-    probe_token: probeToken,
-    synthetic_changes: syntheticChanges,
-    event_data: eventData,
-  });
   clearPendingFieldChanges();
 }
 
-async function invokeFallbackTriggerEvaluation(syntheticChanges, eventData, attempt) {
+async function invokeFallbackTriggerEvaluation(syntheticChanges, eventData) {
   try {
     let ticket = buildFallbackTicketPayload(await getCurrentTicket());
-
-    console.log("[ApprovalsAutomation] sidebar_fallback_invoking", {
-      ticket_id: state.ticketId,
-      attempt,
-      synthetic_changes: syntheticChanges,
-      event_data: eventData,
-      ticket_status: ticket && ticket.status,
-    });
 
     const response = await invokeWithTimeout("evaluateTicketApprovalTrigger", {
       source: "sidebar_properties_updated_fallback",
@@ -444,8 +427,6 @@ async function invokeFallbackTriggerEvaluation(syntheticChanges, eventData, atte
       event_data: eventData,
     });
     const payload = parseInvokeResponse(response);
-
-    console.log("[ApprovalsAutomation] sidebar_fallback_result", payload);
 
     if (!payload || payload.success === false) {
       throw new Error(resolveInvokeError(payload) || "Fallback trigger evaluation failed.");
@@ -583,12 +564,6 @@ async function handleSummaryActionClick(event) {
       throw new Error(resolveInvokeError(payload) || "Failed to record the approval decision.");
     }
 
-    console.log("[ApprovalsAutomation] sidebar_approval_action_succeeded", {
-      ticket_id: state.ticketId,
-      instance_id: instanceId,
-      decision,
-      agent_email: state.loggedInAgent.email,
-    });
     setMessage(decision === "approved" ? "Approval recorded." : "Rejection recorded.", "info");
     await loadSidebar({ silent: true, keepMessage: true });
   } catch (error) {
@@ -773,13 +748,8 @@ async function fetchLiveFieldOptions(fieldName) {
       if (options.length) {
         return options;
       }
-    } catch (error) {
-      console.warn("[ApprovalsAutomation] sidebar_live_field_options_failed", {
-        ticket_id: state.ticketId,
-        field_name: fieldName,
-        object_name: objectName,
-        error: resolveErrorMessage(error, "Unable to load live field options."),
-      });
+    } catch {
+      // Some ticket fields do not expose a matching *_options object in the sidebar runtime.
     }
   }
 
@@ -833,12 +803,6 @@ async function syncLiveTicketFieldMetadata(options) {
 
   try {
     const fields = await buildLiveFieldMetadata(ticket);
-    console.log("[ApprovalsAutomation] sidebar_live_field_sync_started", {
-      ticket_id: state.ticketId,
-      field_count: fields.length,
-      field_names: fields.map((field) => field.name),
-    });
-
     const response = await invokeWithTimeout("syncLiveTicketFieldMetadata", {
       ticket_id: state.ticketId,
       fields,
@@ -849,10 +813,6 @@ async function syncLiveTicketFieldMetadata(options) {
     }
 
     state.lastLiveFieldSyncSignature = signature;
-    console.log("[ApprovalsAutomation] sidebar_live_field_sync_succeeded", {
-      ticket_id: state.ticketId,
-      field_count: fields.length,
-    });
   } catch (error) {
     console.error("Failed to sync live ticket field metadata:", error);
   }
@@ -890,11 +850,7 @@ async function resolveEventData(event) {
 
   try {
     return await Promise.resolve(event.helper.getData());
-  } catch (error) {
-    console.warn("[ApprovalsAutomation] sidebar_event_data_read_failed", {
-      ticket_id: state.ticketId,
-      error: resolveErrorMessage(error, "Unable to read event data."),
-    });
+  } catch {
     return {};
   }
 }

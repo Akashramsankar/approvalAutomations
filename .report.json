@@ -2,167 +2,177 @@
   "lints": [
     {
       "severity": 1,
-      "value": "app/scripts/app.js::35: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/app.js::31: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::157: Arrow function has a complexity of 23. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::153: Arrow function has a complexity of 23. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::202: Async function 'loadDashboard' has a complexity of 19. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::198: Async function 'loadDashboard' has a complexity of 17. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::368: Function 'renderRuleCard' has a complexity of 17. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::320: Function 'renderRuleCard' has a complexity of 17. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::489: Function 'renderForm' has a complexity of 11. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::441: Function 'renderForm' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::683: Function 'renderPreview' has a complexity of 12. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::635: Function 'renderPreview' has a complexity of 12. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::845: Function 'handleRuleAction' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::797: Function 'handleRuleAction' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::886: Async function 'saveRule' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::838: Async function 'saveRule' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1014: Function 'ruleToForm' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::962: Function 'ruleToForm' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1090: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1038: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1139: Function 'extractInvokeErrorDetail' has a complexity of 15. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1087: Function 'extractInvokeErrorDetail' has a complexity of 15. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1197: Function 'updateStringSelection' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1145: Function 'updateStringSelection' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1268: Function 'buildTriggerSummary' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1216: Function 'buildTriggerSummary' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1285: Function 'getAutoCloseSummary' has a complexity of 11. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1233: Function 'getAutoCloseSummary' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/runtime.js::15: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/runtime.js::13: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/runtime.js::48: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.",
+      "value": "app/scripts/runtime.js::46: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/runtime.js::95: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/runtime.js::93: Arrow function has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/runtime.js::231: Async function 'syncLiveFieldMetadata' has a complexity of 12. Maximum allowed is 7.",
+      "value": "app/scripts/runtime.js::224: Async function 'syncLiveFieldMetadata' has a complexity of 12. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/runtime.js::285: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/runtime.js::268: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::45: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/sidebar.js::43: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::57: 'refreshIntervalId' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/sidebar.js::52: 'refreshIntervalId' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::110: Async function 'loadSidebar' has a complexity of 19. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::105: Async function 'loadSidebar' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::224: Function 'formatApproverLine' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::211: Function 'formatApproverLine' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::258: Arrow function has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::245: Arrow function has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::355: Async function 'startPostUpdateProbe' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::262: Function 'getApprovalProgressMetrics' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::430: 'ticket' is never reassigned. Use 'const' instead.",
+      "value": "app/scripts/sidebar.js::281: Function 'renderApprovalProgress' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::481: Function 'extractLoggedInAgent' has a complexity of 13. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::380: Async function 'startPostUpdateProbe' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::543: Async function 'handleSummaryActionClick' has a complexity of 13. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::421: 'ticket' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::637: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::462: Function 'extractLoggedInAgent' has a complexity of 13. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::684: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::524: Async function 'handleSummaryActionClick' has a complexity of 13. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::821: Async function 'syncLiveTicketFieldMetadata' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::612: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::902: Function 'normalizeTicketEventValue' has a complexity of 16. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::659: Arrow function has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::940: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::791: Async function 'syncLiveTicketFieldMetadata' has a complexity of 10. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "app/scripts/sidebar.js::858: Function 'normalizeTicketEventValue' has a complexity of 16. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "app/scripts/sidebar.js::896: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {

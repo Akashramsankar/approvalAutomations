@@ -1,8 +1,5 @@
 let client;
-const BUILD_ID = "2026-04-13-dashboard-ui-r24";
-
 const INVOKE_TIMEOUT_MS = 15000;
-const BUILT_IN_TRIGGER_FIELD_IDS = new Set(["status", "priority", "ticket_type", "type", "group", "agent", "source"]);
 
 const state = {
   loading: true,
@@ -31,7 +28,6 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   try {
-    console.log(`[ApprovalsAutomation] dashboard_build_loaded ${BUILD_ID}`);
     client = await app.initialized();
     bindStaticEvents();
     client.events.on("app.activated", () => {
@@ -227,50 +223,6 @@ async function loadDashboard(options) {
     state.senderEmails = Array.isArray(payload.sender_emails) ? payload.sender_emails : [];
     state.approverAgentOptions = Array.isArray(payload.approver_agent_options) ? payload.approver_agent_options : [];
     state.helper = payload.helper || { email_placeholders: [] };
-
-    console.log("[ApprovalsAutomation] dashboard_trigger_fields_loaded", {
-      total_fields: state.triggerFields.length,
-      field_catalog_total: Object.keys(state.fieldCatalog).length,
-      custom_fields: state.triggerFields
-        .filter((field) => !BUILT_IN_TRIGGER_FIELD_IDS.has(String(field && field.id || "").toLowerCase()))
-        .map((field) => ({
-          id: field.id,
-          label: field.label,
-          type: field.type,
-          option_count: Array.isArray(field.options) ? field.options.length : 0,
-        })),
-    });
-
-    const customFields = state.triggerFields
-      .filter((field) => !BUILT_IN_TRIGGER_FIELD_IDS.has(String(field && field.id || "").toLowerCase()));
-    const customFieldsWithoutOptions = customFields
-      .filter((field) => !Array.isArray(field.options) || !field.options.length)
-      .map((field) => ({
-        id: field.id,
-        label: field.label,
-        type: field.type,
-      }));
-
-    if (!customFields.length) {
-      console.warn("[ApprovalsAutomation] dashboard_custom_fields_missing", {
-        total_fields: state.triggerFields.length,
-        field_catalog_total: Object.keys(state.fieldCatalog).length,
-        sample_field_catalog: Object.values(state.fieldCatalog)
-          .slice(0, 25)
-          .map((field) => ({
-            id: field.id || field.name,
-            name: field.name,
-            label: field.label,
-            type: field.type,
-            option_count: Array.isArray(field.options) ? field.options.length : 0,
-          })),
-      });
-    } else if (customFieldsWithoutOptions.length) {
-      console.warn("[ApprovalsAutomation] dashboard_custom_fields_without_options", {
-        count: customFieldsWithoutOptions.length,
-        fields: customFieldsWithoutOptions,
-      });
-    }
 
     reconcileFormAfterLoad();
   } catch (error) {
@@ -914,11 +866,7 @@ async function saveRule() {
     resetFormState();
     await loadDashboard({ silent: true, keepSuccess: true });
   } catch (error) {
-    console.error("Failed to save rule:", {
-      error,
-      detail: extractInvokeErrorDetail(error),
-      payload,
-    });
+    console.error("Failed to save rule:", error);
     setFormMessage(resolveErrorMessage(error, "Unable to save the rule."), "error");
     render();
   } finally {
