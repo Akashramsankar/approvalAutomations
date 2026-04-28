@@ -11,15 +11,11 @@ const MAX_GATE_HISTORY = 300;
 const STATUS_GUARD_TTL_MS = 5 * 60 * 1000;
 const APPROVAL_ACTION_HOOK_OPTION = "approval-email-action";
 const EMAIL_ACTIONS_ENABLED = true;
-const DEFAULT_APPROVAL_BRIDGE_RELAY_URL = normalizeUrl(
-  process.env.APPROVAL_BRIDGE_RELAY_URL ||
-  process.env.PUBLIC_APPROVAL_BRIDGE_URL ||
-  "https://approval-bridge.onrender.com"
+const DEFAULT_APPROVAL_BRIDGE_RELAY_URL = normalizeUrl("https://approval-bridge.onrender.com");
+const DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL = normalizeUrl("https://approval-bridge.onrender.com");
+const DEFAULT_PUBLIC_APPROVAL_LAUNCH_URL = normalizeText(
+  "https://akashramsankar.github.io/approvalAutomations/external-approval-bridge/approval-launch.html"
 );
-const DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL = normalizeUrl(
-  process.env.PUBLIC_APPROVAL_BRIDGE_URL || DEFAULT_APPROVAL_BRIDGE_RELAY_URL
-);
-const DEFAULT_PUBLIC_APPROVAL_LAUNCH_URL = normalizeText(process.env.PUBLIC_APPROVAL_LAUNCH_URL);
 
 const metadataCache = {
   value: null,
