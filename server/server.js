@@ -11,7 +11,15 @@ const MAX_GATE_HISTORY = 300;
 const STATUS_GUARD_TTL_MS = 5 * 60 * 1000;
 const APPROVAL_ACTION_HOOK_OPTION = "approval-email-action";
 const EMAIL_ACTIONS_ENABLED = true;
-const DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL = "https://approval-bridge.onrender.com";
+const DEFAULT_APPROVAL_BRIDGE_RELAY_URL = normalizeUrl(
+  process.env.APPROVAL_BRIDGE_RELAY_URL ||
+  process.env.PUBLIC_APPROVAL_BRIDGE_URL ||
+  "https://approval-bridge.onrender.com"
+);
+const DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL = normalizeUrl(
+  process.env.PUBLIC_APPROVAL_BRIDGE_URL || DEFAULT_APPROVAL_BRIDGE_RELAY_URL
+);
+const DEFAULT_PUBLIC_APPROVAL_LAUNCH_URL = normalizeText(process.env.PUBLIC_APPROVAL_LAUNCH_URL);
 
 const metadataCache = {
   value: null,
@@ -1890,7 +1898,15 @@ function canUseApprovalActions(actionConfig) {
 
 function resolveRuntimeConfigBridgeUrl() {
   return normalizeUrl(
-    DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL
+    DEFAULT_PUBLIC_APPROVAL_LAUNCH_URL
+      ? DEFAULT_APPROVAL_BRIDGE_RELAY_URL
+      : DEFAULT_PUBLIC_APPROVAL_BRIDGE_URL
+  );
+}
+
+function resolveRuntimeConfigBridgeLaunchUrl() {
+  return normalizeText(
+    DEFAULT_PUBLIC_APPROVAL_LAUNCH_URL
   );
 }
 
@@ -1910,6 +1926,12 @@ async function initializeApprovalRuntimeConfig(forceUrlRefresh) {
   const configuredBridgeUrl = resolveRuntimeConfigBridgeUrl();
   if (normalizeUrl(nextConfig.approval_bridge_url) !== configuredBridgeUrl) {
     nextConfig.approval_bridge_url = configuredBridgeUrl;
+    changed = true;
+  }
+
+  const configuredBridgeLaunchUrl = resolveRuntimeConfigBridgeLaunchUrl();
+  if (normalizeText(nextConfig.approval_bridge_launch_url) !== configuredBridgeLaunchUrl) {
+    nextConfig.approval_bridge_launch_url = configuredBridgeLaunchUrl;
     changed = true;
   }
 
@@ -3024,14 +3046,25 @@ function buildMailtoButtonMarkup(targetEmail, instance, decision, label, palette
   return `<a href="${escapeHtml(href)}" style="${palette}">${escapeHtml(label)}</a>`;
 }
 
-function buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision) {
+function buildApprovalBridgeLink(bridgeUrl, launchUrl, hookUrl, token, decision) {
   const normalizedBridgeUrl = normalizeUrl(bridgeUrl);
+  const normalizedLaunchUrl = normalizeText(launchUrl);
   const normalizedHookUrl = normalizeText(hookUrl);
   const normalizedToken = normalizeText(token);
   const normalizedDecision = normalizeLower(decision) === "rejected" ? "rejected" : "approved";
 
   if (!normalizedBridgeUrl || !normalizedHookUrl || !normalizedToken) {
     return "";
+  }
+
+  if (normalizedLaunchUrl) {
+    const launchQuery = buildQueryString({
+      bridge: normalizedBridgeUrl,
+      hook: normalizedHookUrl,
+      token: normalizedToken,
+      decision: normalizedDecision,
+    });
+    return `${normalizedLaunchUrl}${normalizedLaunchUrl.includes("?") ? "&" : "?"}${launchQuery}`;
   }
 
   const query = buildQueryString({
@@ -3042,8 +3075,8 @@ function buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision) {
   return `${normalizedBridgeUrl}/approval${query ? `?${query}` : ""}`;
 }
 
-function buildBridgeButtonMarkup(bridgeUrl, hookUrl, token, decision, label, palette) {
-  const href = buildApprovalBridgeLink(bridgeUrl, hookUrl, token, decision);
+function buildBridgeButtonMarkup(bridgeUrl, launchUrl, hookUrl, token, decision, label, palette) {
+  const href = buildApprovalBridgeLink(bridgeUrl, launchUrl, hookUrl, token, decision);
   if (!href) {
     return "";
   }
@@ -3075,6 +3108,7 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
   const emailActions = buildEmailActionMarkup(actionConfig);
   emailActions.approve_bridge_button = buildBridgeButtonMarkup(
     normalizeUrl(actionConfig && actionConfig.approval_bridge_url),
+    normalizeText(actionConfig && actionConfig.approval_bridge_launch_url),
     normalizeText(actionConfig && actionConfig.external_action_url),
     encodeApprovalActionToken(instance && instance.id, approver && approver.email, "approved"),
     "approved",
@@ -3096,6 +3130,7 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
   );
   emailActions.reject_bridge_button = buildBridgeButtonMarkup(
     normalizeUrl(actionConfig && actionConfig.approval_bridge_url),
+    normalizeText(actionConfig && actionConfig.approval_bridge_launch_url),
     normalizeText(actionConfig && actionConfig.external_action_url),
     encodeApprovalActionToken(instance && instance.id, approver && approver.email, "rejected"),
     "rejected",
