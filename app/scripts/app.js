@@ -21,6 +21,7 @@ const state = {
     type: "",
     text: "",
   },
+  formErrors: {},
   form: createEmptyForm(),
 };
 
@@ -61,7 +62,6 @@ function createEmptyForm() {
       "Current status: {{ticket_status}}",
       "",
       "Use the approval buttons in the email.",
-      "If your mail client does not show the buttons, reply with APPROVE or REJECT.",
     ].join("\n"),
   };
 }
@@ -84,6 +84,10 @@ function bindStaticEvents() {
       addExternalApproverFromInput();
     }
   });
+  document.getElementById("externalEmailInput").addEventListener("input", () => {
+    clearFieldError("approvers");
+    renderFormErrors();
+  });
 
   document.getElementById("ruleForm").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -92,6 +96,8 @@ function bindStaticEvents() {
 
   document.getElementById("ruleNameInput").addEventListener("input", (event) => {
     state.form.name = event.target.value;
+    clearFieldError("name");
+    renderFormErrors();
     renderPreview();
   });
 
@@ -122,16 +128,22 @@ function bindStaticEvents() {
 
   document.getElementById("senderEmailSelect").addEventListener("change", (event) => {
     state.form.senderEmail = event.target.value;
+    clearFieldError("sender_email");
+    renderFormErrors();
     renderPreview();
   });
 
   document.getElementById("emailSubjectInput").addEventListener("input", (event) => {
     state.form.emailSubject = event.target.value;
+    clearFieldError("email_subject");
+    renderFormErrors();
     renderPreview();
   });
 
   document.getElementById("emailBodyInput").addEventListener("input", (event) => {
     state.form.emailBody = event.target.value;
+    clearFieldError("email_body");
+    renderFormErrors();
     renderPreview();
   });
 
@@ -152,7 +164,19 @@ function mergeTriggerFields(triggerFields, fieldCatalog) {
   [...(Array.isArray(triggerFields) ? triggerFields : []), ...Object.values(fieldCatalog || {})]
     .forEach((field) => {
       const fieldId = String((field && (field.id || field.name)) || "").trim();
+      const fieldLabel = String((field && field.label) || "").trim();
+      const filterKeys = [
+        fieldId,
+        fieldLabel,
+        String((field && field.root_name) || "").trim(),
+        String((field && field.root_label) || "").trim(),
+        String((field && field.element_id) || "").trim(),
+      ].map((value) => value.toLowerCase().replace(/[^a-z0-9]/g, ""));
       if (!fieldId) {
+        return;
+      }
+
+      if (filterKeys.includes("sourceinfo") || filterKeys.includes("cfsourceinfo")) {
         return;
       }
 
@@ -401,11 +425,15 @@ function renderRecentActivity() {
   listEl.classList.remove("hidden");
   listEl.innerHTML = state.recentInstances.slice(0, 8).map((instance) => {
     const stateMeta = getInstanceStateMeta(instance.state);
+    const ticketLabel = `#${String(instance.ticket_id)}`;
+    const ticketMarkup = instance.ticket_url
+      ? `<a class="ticket-link" href="${escapeAttribute(instance.ticket_url)}" target="_blank" rel="noreferrer">${escapeHtml(ticketLabel)}</a>`
+      : escapeHtml(ticketLabel);
     return `
       <article class="activity-item">
         <div class="activity-top">
           <div>
-            <strong>${escapeHtml(instance.rule_name)} on ticket #${escapeHtml(String(instance.ticket_id))}</strong>
+            <strong>${escapeHtml(instance.rule_name)} on ticket ${ticketMarkup}</strong>
             <div class="activity-meta">Last updated ${escapeHtml(formatDate(instance.updated_at_iso || instance.updated_at))}.</div>
           </div>
           <span class="pill ${stateMeta.pillClass}">${escapeHtml(stateMeta.label)}</span>
@@ -478,6 +506,7 @@ function renderForm() {
   renderSenderEmailOptions();
   renderPreview();
   renderPlaceholderText();
+  renderFormErrors();
 }
 
 function renderStatusOptions() {
@@ -661,6 +690,7 @@ function addCondition() {
     field: "",
     values: [],
   });
+  clearFieldError("conditions");
   renderForm();
 }
 
@@ -673,6 +703,8 @@ function handleStatusChecklistChange(event) {
   state.form.statusValues = Array.from(
     document.querySelectorAll("#statusValuesChecklist input[data-status-value]:checked")
   ).map((input) => input.getAttribute("data-status-value"));
+  clearFieldError("status_values");
+  renderFormErrors();
   renderPreview();
 }
 
@@ -687,6 +719,7 @@ function handleConditionChange(event) {
       field: event.target.value,
       values: [],
     };
+    clearFieldError("conditions");
     renderForm();
     return;
   }
@@ -697,6 +730,8 @@ function handleConditionChange(event) {
       event.target.getAttribute("data-value"),
       Boolean(event.target.checked)
     );
+    clearFieldError("conditions");
+    renderFormErrors();
     renderPreview();
     return;
   }
@@ -706,6 +741,8 @@ function handleConditionChange(event) {
       .split(",")
       .map((value) => value.trim())
       .filter(Boolean);
+    clearFieldError("conditions");
+    renderFormErrors();
     renderPreview();
   }
 }
@@ -722,6 +759,7 @@ function handleConditionClick(event) {
   }
 
   state.form.conditions.splice(index, 1);
+  clearFieldError("conditions");
   renderForm();
 }
 
@@ -733,6 +771,7 @@ function handleApproverChipClick(event) {
 
   const email = button.getAttribute("data-email");
   state.form.approvers = state.form.approvers.filter((approver) => normalizeEmail(approver.email) !== normalizeEmail(email));
+  clearFieldError("approvers");
   renderForm();
 }
 
@@ -741,7 +780,9 @@ function addExternalApproverFromInput() {
   const email = input.value.trim();
 
   if (!isValidEmail(email)) {
-    setFormMessage("Enter a valid external email address before adding it.", "error");
+    setFieldError("approvers", "Enter a valid approver email address.");
+    renderFormErrors();
+    scrollToFirstFormError(["approvers"]);
     return;
   }
 
@@ -754,7 +795,7 @@ function addExternalApproverFromInput() {
     },
   ]);
   input.value = "";
-  clearFormMessage();
+  clearFieldError("approvers");
   renderForm();
 }
 
@@ -789,6 +830,7 @@ function syncSelectedAgentApprovers(selectedEmails) {
     .filter(Boolean);
 
   state.form.approvers = dedupeApprovers([...selectedAgents, ...externalApprovers]);
+  clearFieldError("approvers");
   renderForm();
 }
 
@@ -839,13 +881,15 @@ async function saveRule() {
   }
 
   clearFormMessage();
+  clearFormErrors();
   state.globalSuccess = "";
 
   const payload = formToPayload();
-  const validationMessage = validatePayload(payload);
-  if (validationMessage) {
-    setFormMessage(validationMessage, "error");
+  const validationErrors = validatePayload(payload);
+  if (hasFormErrors(validationErrors)) {
+    setFormErrors(validationErrors);
     render();
+    scrollToFirstFormError();
     return;
   }
 
@@ -929,6 +973,7 @@ function resetFormStateInternal(options) {
   state.pendingDeleteId = "";
   state.modalOpen = Boolean(options && options.preserveModal);
   clearFormMessage();
+  clearFormErrors();
   render();
 }
 
@@ -938,6 +983,7 @@ function openCreateRuleModal() {
   state.pendingDeleteId = "";
   state.modalOpen = true;
   clearFormMessage();
+  clearFormErrors();
   render();
 }
 
@@ -946,6 +992,7 @@ function openEditRuleModal(rule) {
   state.pendingDeleteId = "";
   state.modalOpen = true;
   clearFormMessage();
+  clearFormErrors();
   render();
 }
 
@@ -1006,31 +1053,33 @@ function formToPayload() {
 }
 
 function validatePayload(payload) {
+  const errors = {};
+
   if (!payload.status_values.length) {
-    return "Choose at least one status to watch.";
+    errors.status_values = "Choose at least one status to watch.";
   }
 
   if (payload.conditions.some((condition) => !condition.field || !(condition.values || []).length)) {
-    return "Every extra condition needs a field and at least one value.";
+    errors.conditions = "Every entry condition needs a field and at least one value.";
   }
 
   if (!payload.approvers.length) {
-    return "Add at least one approver email address.";
+    errors.approvers = "Add at least one approver email address.";
   }
 
   if (!payload.sender_email) {
-    return "Choose a Freshdesk sender email.";
+    errors.sender_email = "Choose a Freshdesk sender email.";
   }
 
   if (!payload.email_subject) {
-    return "Enter an email subject.";
+    errors.email_subject = "Enter an email subject.";
   }
 
   if (!payload.email_body) {
-    return "Enter the approval email message.";
+    errors.email_body = "Enter the approval email message.";
   }
 
-  return "";
+  return errors;
 }
 
 function parseInvokeResponse(response) {
@@ -1136,6 +1185,147 @@ function clearFormMessage() {
   };
 }
 
+function setFormErrors(errors) {
+  state.formErrors = errors && typeof errors === "object" ? { ...errors } : {};
+}
+
+function setFieldError(fieldId, message) {
+  state.formErrors = {
+    ...state.formErrors,
+    [fieldId]: message,
+  };
+}
+
+function clearFieldError(fieldId) {
+  if (!state.formErrors[fieldId]) {
+    return;
+  }
+
+  const nextErrors = { ...state.formErrors };
+  delete nextErrors[fieldId];
+  state.formErrors = nextErrors;
+}
+
+function clearFormErrors() {
+  state.formErrors = {};
+}
+
+function hasFormErrors(errors) {
+  return Boolean(errors && Object.keys(errors).length);
+}
+
+function renderFormErrors() {
+  setFieldErrorState("ruleNameError", "name", "ruleNameInput");
+  setFieldErrorState("statusValuesError", "status_values", "statusValuesPanel");
+  setFieldErrorState("conditionsError", "conditions", "conditionsContainer");
+  setFieldErrorState("approversError", "approvers", "selectedApprovers");
+  setFieldErrorState("senderEmailError", "sender_email", "senderEmailSelect");
+  setFieldErrorState("emailSubjectError", "email_subject", "emailSubjectInput");
+  setFieldErrorState("emailBodyError", "email_body", "emailBodyInput");
+
+  toggleErrorClass("ruleNameInput", Boolean(state.formErrors.name), "input-error");
+  toggleErrorClass("senderEmailSelect", Boolean(state.formErrors.sender_email), "input-error");
+  toggleErrorClass("emailSubjectInput", Boolean(state.formErrors.email_subject), "input-error");
+  toggleErrorClass("emailBodyInput", Boolean(state.formErrors.email_body), "input-error");
+  toggleErrorClass("statusValuesPanel", Boolean(state.formErrors.status_values), "error-state");
+  toggleErrorClass("conditionsContainer", Boolean(state.formErrors.conditions), "error-state");
+  toggleErrorClass("agentApproverPanel", Boolean(state.formErrors.approvers), "error-state");
+  toggleErrorClass("selectedApprovers", Boolean(state.formErrors.approvers), "error-state");
+}
+
+function setFieldErrorState(errorElementId, fieldKey, targetId) {
+  const errorEl = document.getElementById(errorElementId);
+  const targetEl = document.getElementById(targetId);
+  const message = state.formErrors[fieldKey];
+
+  if (!errorEl || !targetEl) {
+    return;
+  }
+
+  if (message) {
+    errorEl.textContent = message;
+    errorEl.classList.remove("hidden");
+    targetEl.setAttribute("aria-invalid", "true");
+    return;
+  }
+
+  errorEl.textContent = "";
+  errorEl.classList.add("hidden");
+  targetEl.removeAttribute("aria-invalid");
+}
+
+function toggleErrorClass(elementId, shouldApply, className) {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    return;
+  }
+
+  element.classList.toggle(className, Boolean(shouldApply));
+}
+
+function scrollToFirstFormError(fieldOrder) {
+  const orderedFields = Array.isArray(fieldOrder) && fieldOrder.length
+    ? fieldOrder
+    : ["name", "status_values", "conditions", "approvers", "sender_email", "email_subject", "email_body"];
+  const firstField = orderedFields.find((fieldKey) => state.formErrors[fieldKey]);
+  if (!firstField) {
+    return;
+  }
+
+  const targetMap = {
+    name: {
+      scrollId: "ruleNameError",
+      focusId: "ruleNameInput",
+    },
+    status_values: {
+      scrollId: "statusValuesError",
+      focusId: "statusValuesPanel",
+    },
+    conditions: {
+      scrollId: "conditionsError",
+      focusId: "conditionsContainer",
+    },
+    approvers: {
+      scrollId: "approversError",
+      focusId: "externalEmailInput",
+    },
+    sender_email: {
+      scrollId: "senderEmailError",
+      focusId: "senderEmailSelect",
+    },
+    email_subject: {
+      scrollId: "emailSubjectError",
+      focusId: "emailSubjectInput",
+    },
+    email_body: {
+      scrollId: "emailBodyError",
+      focusId: "emailBodyInput",
+    },
+  };
+
+  const targetMeta = targetMap[firstField];
+  if (!targetMeta) {
+    return;
+  }
+
+  const scrollTarget = document.getElementById(targetMeta.scrollId) || document.getElementById(targetMeta.focusId);
+  const focusTarget = document.getElementById(targetMeta.focusId) || scrollTarget;
+  if (!scrollTarget) {
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (
+      focusTarget &&
+      typeof focusTarget.focus === "function" &&
+      ["INPUT", "SELECT", "TEXTAREA", "BUTTON"].includes(focusTarget.tagName)
+    ) {
+      focusTarget.focus({ preventScroll: true });
+    }
+  });
+}
+
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -1225,7 +1415,7 @@ function buildTriggerSummary(rule) {
     return `Runs when status changes to ${statusText}. ${completionText}`;
   }
 
-  return `Runs when status changes to ${statusText}. Entry conditions can also start approval earlier. ${completionText}`;
+  return `Runs when status changes to ${statusText}. Entry conditions can also start approval before that status is reached. ${completionText}`;
 }
 
 function getAutoCloseSummary(instance) {

@@ -336,6 +336,16 @@
       font-size: 15px;
     }
 
+    .ticket-link {
+      color: #0b69c7;
+      text-decoration: none;
+    }
+
+    .ticket-link:hover,
+    .ticket-link:focus-visible {
+      text-decoration: underline;
+    }
+
     .form-card {
       display: grid;
       gap: 16px;
@@ -351,6 +361,11 @@
       display: grid;
       gap: 14px;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field-stack {
+      display: grid;
+      gap: 14px;
     }
 
     .field {
@@ -379,6 +394,13 @@
       background: #ffffff;
       padding: 10px 12px;
       color: #17324d;
+    }
+
+    .input.input-error,
+    .select.input-error,
+    .textarea.input-error {
+      border-color: #cf222e;
+      box-shadow: 0 0 0 3px rgba(207, 34, 46, 0.12);
     }
 
     .input:focus,
@@ -476,6 +498,13 @@
       border-radius: 12px;
       background: #ffffff;
       padding: 14px;
+    }
+
+    .option-panel.error-state,
+    .condition-list.error-state,
+    .chip-row.error-state {
+      border-color: #efb3b8;
+      background: #fff8f7;
     }
 
     .option-panel h5,
@@ -592,6 +621,17 @@
       gap: 8px;
       flex-wrap: wrap;
       min-height: 24px;
+      padding: 0;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    .field-error {
+      margin-top: 8px;
+      color: #b42318;
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 700;
     }
 
     .chip {
@@ -866,7 +906,7 @@
               <div class="field">
                 <label for="ruleNameInput">Rule name</label>
                 <input class="input" id="ruleNameInput" type="text" placeholder="Example: Approval for enterprise cancellations">
-                <div class="helper">Shown in the dashboard and ticket sidebar.</div>
+                <div id="ruleNameError" class="field-error hidden"></div>
               </div>
               <div class="field">
                 <label for="ruleActiveInput">Activation</label>
@@ -874,7 +914,6 @@
                   <input id="ruleActiveInput" type="checkbox" checked>
                   <span>Enable this rule immediately</span>
                 </label>
-                <div class="helper">Turn off to keep the rule saved without running it.</div>
               </div>
             </div>
           </section>
@@ -888,11 +927,12 @@
               <article class="trigger-card">
                 <span class="trigger-tag">Primary Trigger</span>
                 <h4>Status Change</h4>
-                <p class="trigger-copy">Approval starts when a ticket moves into any selected status.</p>
+                <p class="trigger-copy">This is the main trigger. Approval starts when a ticket moves into any selected status.</p>
                 <div class="option-panel-grid" style="margin-top:14px;">
-                  <section class="option-panel">
+                  <section id="statusValuesPanel" class="option-panel">
                     <h5>Watch these statuses</h5>
                     <div id="statusValuesChecklist" class="checkbox-grid"></div>
+                    <div id="statusValuesError" class="field-error hidden"></div>
                   </section>
                 </div>
               </article>
@@ -900,11 +940,11 @@
               <article class="trigger-card">
                 <span class="trigger-tag">Optional Trigger</span>
                 <h4>Entry Conditions</h4>
-                <p class="trigger-copy">Add conditions if approval should start before the status change.</p>
+                <p class="trigger-copy">Add conditions when approval should also start before the watched status is reached. If the ticket already matches these conditions, approval can begin even before the status changes.</p>
                 <div class="logic-panel">
                   <div>
                     <strong class="logic-title">Match logic</strong>
-                    <p class="logic-copy">Choose whether all conditions must match or just one.</p>
+                    <p class="logic-copy">Choose whether every condition must match or whether any one match is enough.</p>
                   </div>
                   <div class="logic-toggle" role="group" aria-label="Condition matching">
                     <button class="logic-option" id="operatorAndBtn" type="button" data-condition-operator="and">All Must Match</button>
@@ -912,6 +952,7 @@
                   </div>
                 </div>
                 <div id="conditionsContainer" class="condition-list"></div>
+                <div id="conditionsError" class="field-error hidden"></div>
                 <div class="inline-actions" style="margin-top:12px;">
                   <button class="btn btn-secondary" id="addConditionBtn" type="button">Add Condition</button>
                 </div>
@@ -927,7 +968,7 @@
             <div class="approver-builder">
               <div class="field">
                 <label>Freshdesk agents</label>
-                <section class="option-panel">
+                <section id="agentApproverPanel" class="option-panel">
                   <h5>Select agents</h5>
                   <div id="agentApproverChecklist" class="checkbox-grid"></div>
                 </section>
@@ -939,12 +980,12 @@
                   <input class="input" id="externalEmailInput" type="email" placeholder="approver@company.com">
                   <button class="btn btn-secondary" id="addExternalEmailBtn" type="button">Add Email</button>
                 </div>
-                <div class="helper">Can be any email address.</div>
               </div>
 
               <div class="field">
                 <label>Selected approvers</label>
                 <div id="selectedApprovers" class="chip-row"></div>
+                <div id="approversError" class="field-error hidden"></div>
               </div>
 
               <label class="toggle">
@@ -959,29 +1000,31 @@
               <span class="card-kicker">Email</span>
               <h3 class="card-title">Email Settings</h3>
             </div>
-            <div class="field-grid">
+            <div class="field-stack">
               <div class="field">
                 <label for="senderEmailSelect">Send email from</label>
                 <select class="select" id="senderEmailSelect"></select>
-                <div class="helper">Freshdesk support mailboxes.</div>
+                <div id="senderEmailError" class="field-error hidden"></div>
               </div>
               <div class="field">
                 <label for="emailSubjectInput">Email subject</label>
                 <input class="input" id="emailSubjectInput" type="text" placeholder="Approval required for {{ticket_id}}">
+                <div id="emailSubjectError" class="field-error hidden"></div>
                 <div class="helper">Supported placeholders: <span id="placeholderInlineText"></span></div>
               </div>
-              <div class="field field-wide">
+              <div class="field">
+                <label for="emailBodyInput">Approval email message</label>
+                <textarea class="textarea" id="emailBodyInput" placeholder="Approval has been requested for ticket {{ticket_id}}.&#10;&#10;Subject: {{ticket_subject}}&#10;Current status: {{ticket_status}}"></textarea>
+                <div id="emailBodyError" class="field-error hidden"></div>
+                <div class="helper">Approve and reject buttons are added automatically.</div>
+              </div>
+              <div class="field">
                 <label for="autoCloseAfterApprovalInput">After approval completes</label>
                 <label class="toggle">
                   <input id="autoCloseAfterApprovalInput" type="checkbox">
                   <span>Close the ticket automatically</span>
                 </label>
                 <div class="helper">Turn off to leave the ticket on its current status.</div>
-              </div>
-              <div class="field field-wide">
-                <label for="emailBodyInput">Approval email message</label>
-                <textarea class="textarea" id="emailBodyInput" placeholder="Approval has been requested for ticket {{ticket_id}}.&#10;&#10;Subject: {{ticket_subject}}&#10;Current status: {{ticket_status}}"></textarea>
-                <div class="helper">Approve and reject buttons are added automatically.</div>
               </div>
             </div>
           </section>
@@ -994,7 +1037,7 @@
       </div>
 
       <div class="rule-modal-footer">
-        <span class="helper">Status changes and optional entry conditions can both trigger a rule.</span>
+        <span class="helper">Status is the main trigger. Optional entry conditions can start approval earlier when a ticket already matches them.</span>
         <div class="modal-footer-actions">
           <button class="btn btn-secondary" id="resetFormBtn" type="button">Clear Form</button>
           <button class="btn btn-secondary" id="cancelEditBtn" type="button">Cancel</button>

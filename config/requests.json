@@ -98,6 +98,17 @@
       }
     }
   },
+  "list_tickets": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.domain %>",
+      "path": "/api/v2/tickets?updated_since=<%= context.updated_since %>&page=<%= context.page %>&per_page=<%= context.per_page %>",
+      "headers": {
+        "Authorization": "Basic <%= iparam.api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
   "forward_ticket_email": {
     "schema": {
       "method": "POST",

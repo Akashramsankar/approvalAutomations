@@ -30,6 +30,7 @@ const state = {
   postUpdateRefreshActive: false,
   loadRequestToken: 0,
   lastLiveFieldSyncSignature: "",
+  emptyStateRecoveryTicketId: 0,
   actionInFlight: "",
   message: {
     type: "",
@@ -110,6 +111,7 @@ async function loadSidebar(options) {
     state.pendingFieldChanges = {};
     state.postUpdateProbeToken += 1;
     state.postUpdateRefreshActive = false;
+    state.emptyStateRecoveryTicketId = 0;
     state.actionInFlight = "";
   }
 
@@ -148,6 +150,12 @@ async function loadSidebar(options) {
     }
 
     state.instances = nextInstances;
+
+    if (!nextInstances.length && shouldAttemptEmptyStateRecovery(options)) {
+      state.emptyStateRecoveryTicketId = state.ticketId;
+      await attemptEmptyStateRecovery();
+      return;
+    }
   } catch (error) {
     if (loadToken !== state.loadRequestToken || requestTicketId !== state.ticketId) {
       return;
@@ -161,6 +169,35 @@ async function loadSidebar(options) {
       render();
     }
   }
+}
+
+function shouldAttemptEmptyStateRecovery(options) {
+  return Boolean(
+    state.ticketId &&
+    state.currentTicket &&
+    state.emptyStateRecoveryTicketId !== state.ticketId &&
+    !(options && options.skipEmptyRecovery)
+  );
+}
+
+async function attemptEmptyStateRecovery() {
+  try {
+    const ticket = buildFallbackTicketPayload(state.currentTicket || await getCurrentTicket());
+    const response = await invokeWithTimeout("evaluateTicketApprovalTrigger", {
+      source: "ticket_sidebar_empty_state_recovery",
+      ticket,
+      changes: buildCreateFallbackChanges(ticket),
+    });
+    const payload = parseInvokeResponse(response);
+
+    if (!payload || payload.success === false) {
+      throw new Error(resolveInvokeError(payload) || "Empty-state trigger recovery failed.");
+    }
+  } catch (error) {
+    console.error("Failed to recover sidebar empty state:", error);
+  }
+
+  await loadSidebar({ silent: true, keepMessage: true, skipEmptyRecovery: true });
 }
 
 function render() {
@@ -857,6 +894,52 @@ function buildFallbackTicketPayload(ticket) {
     custom_fields: clonePlainObject(sourceTicket.custom_fields || sourceTicket.customFields),
     changes: clonePlainObject(sourceTicket.changes),
   };
+}
+
+function buildCreateFallbackChanges(ticket) {
+  const sourceTicket = ticket && typeof ticket === "object" ? ticket : {};
+  const changes = {};
+
+  if (normalizeText(sourceTicket.status)) {
+    changes.status = ["", normalizeText(sourceTicket.status)];
+  }
+
+  if (normalizeText(sourceTicket.priority)) {
+    changes.priority = ["", normalizeText(sourceTicket.priority)];
+  }
+
+  if (normalizeText(sourceTicket.type || sourceTicket.ticket_type)) {
+    changes.type = ["", normalizeText(sourceTicket.type || sourceTicket.ticket_type)];
+  }
+
+  if (normalizeText(sourceTicket.group_id)) {
+    changes.group_id = ["", normalizeText(sourceTicket.group_id)];
+  }
+
+  if (normalizeText(sourceTicket.responder_id)) {
+    changes.responder_id = ["", normalizeText(sourceTicket.responder_id)];
+  }
+
+  if (normalizeText(sourceTicket.source)) {
+    changes.source = ["", normalizeText(sourceTicket.source)];
+  }
+
+  const customFields = sourceTicket.custom_fields || sourceTicket.customFields || {};
+  const customChanges = {};
+  Object.keys(customFields).forEach((key) => {
+    const value = normalizeTicketEventValue(key, customFields[key]);
+    if (!value) {
+      return;
+    }
+
+    customChanges[key] = ["", value];
+  });
+
+  if (Object.keys(customChanges).length) {
+    changes.custom_fields = customChanges;
+  }
+
+  return changes;
 }
 
 function clonePlainObject(value) {

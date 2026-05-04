@@ -2,72 +2,77 @@
   "lints": [
     {
       "severity": 1,
-      "value": "app/scripts/app.js::31: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/app.js::32: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::153: Arrow function has a complexity of 23. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::165: Arrow function has a complexity of 33. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::198: Async function 'loadDashboard' has a complexity of 17. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::222: Async function 'loadDashboard' has a complexity of 17. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::320: Function 'renderRuleCard' has a complexity of 18. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::344: Function 'renderRuleCard' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::440: Function 'renderForm' has a complexity of 11. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::468: Function 'renderForm' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::634: Function 'renderPreview' has a complexity of 12. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::663: Function 'renderPreview' has a complexity of 12. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::795: Function 'handleRuleAction' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::837: Function 'handleRuleAction' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::836: Async function 'saveRule' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::878: Async function 'saveRule' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::960: Function 'ruleToForm' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1007: Function 'ruleToForm' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1036: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1085: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1085: Function 'extractInvokeErrorDetail' has a complexity of 15. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1134: Function 'extractInvokeErrorDetail' has a complexity of 15. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1143: Function 'updateStringSelection' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1266: Function 'scrollToFirstFormError' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1214: Function 'buildTriggerSummary' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1333: Function 'updateStringSelection' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1231: Function 'getAutoCloseSummary' has a complexity of 11. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1404: Function 'buildTriggerSummary' has a complexity of 8. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "app/scripts/app.js::1421: Function 'getAutoCloseSummary' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
@@ -97,367 +102,342 @@
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::44: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/sidebar.js::45: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::53: 'refreshIntervalId' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/sidebar.js::54: 'refreshIntervalId' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::106: Async function 'loadSidebar' has a complexity of 19. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::107: Async function 'loadSidebar' has a complexity of 21. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::218: Function 'formatApproverLine' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::255: Function 'formatApproverLine' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::252: Arrow function has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::289: Arrow function has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::269: Function 'getApprovalProgressMetrics' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::306: Function 'getApprovalProgressMetrics' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::288: Function 'renderApprovalProgress' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::325: Function 'renderApprovalProgress' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::387: Async function 'startPostUpdateProbe' has a complexity of 11. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::424: Async function 'startPostUpdateProbe' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::435: 'ticket' is never reassigned. Use 'const' instead.",
+      "value": "app/scripts/sidebar.js::472: 'ticket' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::476: Function 'extractLoggedInAgent' has a complexity of 13. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::513: Function 'extractLoggedInAgent' has a complexity of 13. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::538: Async function 'handleSummaryActionClick' has a complexity of 13. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::575: Async function 'handleSummaryActionClick' has a complexity of 13. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::636: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::673: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::683: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::720: Arrow function has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::815: Async function 'syncLiveTicketFieldMetadata' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::852: Async function 'syncLiveTicketFieldMetadata' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::882: Function 'normalizeTicketEventValue' has a complexity of 16. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::899: Function 'buildCreateFallbackChanges' has a complexity of 14. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/sidebar.js::920: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::965: Function 'normalizeTicketEventValue' has a complexity of 16. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::200: Function 'resolveAgentFacingLabel' has a complexity of 15. Maximum allowed is 7.",
+      "value": "app/scripts/sidebar.js::1003: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::292: Function 'decodeLegacyBase64UrlToken' has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::201: Function 'resolveAgentFacingLabel' has a complexity of 15. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::334: Function 'decodeApprovalActionToken' has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::293: Function 'decodeLegacyBase64UrlToken' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::365: Function 'buildErrorMessage' has a complexity of 19. Maximum allowed is 7.",
+      "value": "server/server.js::335: Function 'decodeApprovalActionToken' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::423: Function 'writeAutomationLog' has a complexity of 11. Maximum allowed is 7.",
+      "value": "server/server.js::366: Function 'buildErrorMessage' has a complexity of 19. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::472: Async function 'invokeRequestTemplate' has a complexity of 13. Maximum allowed is 7.",
+      "value": "server/server.js::424: Function 'writeAutomationLog' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::526: Function 'maybeAddOption' has a complexity of 19. Maximum allowed is 7.",
+      "value": "server/server.js::473: Async function 'invokeRequestTemplate' has a complexity of 13. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::553: Function 'collectChoiceOptions' has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::527: Function 'maybeAddOption' has a complexity of 19. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::584: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::554: Function 'collectChoiceOptions' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::644: Function 'collectChoiceLabels' has a complexity of 11. Maximum allowed is 7.",
+      "value": "server/server.js::585: Arrow function has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::672: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::645: Function 'collectChoiceLabels' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::706: Function 'resolveReadableOptionLabel' has a complexity of 14. Maximum allowed is 7.",
+      "value": "server/server.js::673: Arrow function has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::743: Function 'resolveCanonicalOptionValue' has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::707: Function 'resolveReadableOptionLabel' has a complexity of 14. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::807: Arrow function has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::744: Function 'resolveCanonicalOptionValue' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::936: Function 'isDropdownLikeField' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::808: Arrow function has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::999: Function 'shouldExposeAsTriggerField' has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::937: Function 'isDropdownLikeField' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1108: Arrow function has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::1016: Function 'shouldExposeAsTriggerField' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1137: Function 'createLiveMetadataField' has a complexity of 17. Maximum allowed is 7.",
+      "value": "server/server.js::1126: Arrow function has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1172: Arrow function has a complexity of 12. Maximum allowed is 7.",
+      "value": "server/server.js::1155: Function 'createLiveMetadataField' has a complexity of 17. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1336: Function 'isCustomOrChoiceFieldCandidate' has a complexity of 11. Maximum allowed is 7.",
+      "value": "server/server.js::1190: Arrow function has a complexity of 12. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1459: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::1354: Function 'isCustomOrChoiceFieldCandidate' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1563: possible deprecated API usage detected",
+      "value": "server/server.js::1477: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::1581: possible deprecated API usage detected",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1607: Async function 'fetchSupportData' has a complexity of 25. Maximum allowed is 7.",
+      "value": "server/server.js::1631: Async function 'fetchSupportData' has a complexity of 25. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1893: Function 'shouldRetryPendingApprovalEmail' has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::1917: Function 'shouldRetryPendingApprovalEmail' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::1998: Async function 'initializeApprovalRuntimeConfig' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::2022: Async function 'initializeApprovalRuntimeConfig' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2081: Arrow function has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::2105: Arrow function has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2120: Function 'sanitizeRulePayload' has a complexity of 35. Maximum allowed is 7.",
+      "value": "server/server.js::2144: Function 'sanitizeRulePayload' has a complexity of 35. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2329: Function 'buildRuleSummary' has a complexity of 11. Maximum allowed is 7.",
+      "value": "server/server.js::2353: Function 'buildRuleSummary' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2436: Function 'getTicketChangeValue' has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::2450: Function 'buildSyntheticCreateChanges' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2481: Function 'parseFieldChange' has a complexity of 15. Maximum allowed is 7.",
+      "value": "server/server.js::2509: Function 'getTicketChangeValue' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2550: Arrow function has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::2554: Function 'parseFieldChange' has a complexity of 15. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2679: Function 'buildStatusGateNote' has a complexity of 17. Maximum allowed is 7.",
+      "value": "server/server.js::2623: Arrow function has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2807: Function 'createApprovalInstance' has a complexity of 16. Maximum allowed is 7.",
+      "value": "server/server.js::2752: Function 'buildStatusGateNote' has a complexity of 17. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2857: Function 'buildPendingApproverFromRule' has a complexity of 23. Maximum allowed is 7.",
+      "value": "server/server.js::2903: Function 'createApprovalInstance' has a complexity of 16. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2886: Arrow function has a complexity of 34. Maximum allowed is 7.",
+      "value": "server/server.js::2979: Function 'buildPendingApproverFromRule' has a complexity of 23. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2902: Function 'syncPendingInstanceWithRule' has a complexity of 26. Maximum allowed is 7.",
+      "value": "server/server.js::3008: Arrow function has a complexity of 34. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::2988: Async function 'syncPendingApprovalInstancesForRule' has a complexity of 15. Maximum allowed is 7.",
+      "value": "server/server.js::3024: Function 'syncPendingInstanceWithRule' has a complexity of 26. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3135: Function 'buildApprovalBridgeLink' has a complexity of 16. Maximum allowed is 7.",
+      "value": "server/server.js::3110: Async function 'syncPendingApprovalInstancesForRule' has a complexity of 15. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3209: Function 'buildEmailContent' has a complexity of 37. Maximum allowed is 7.",
+      "value": "server/server.js::3257: Function 'buildApprovalBridgeLink' has a complexity of 16. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3428: Function 'resolveClosedStatusOption' has a complexity of 11. Maximum allowed is 7.",
+      "value": "server/server.js::3331: Function 'buildEmailContent' has a complexity of 37. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3459: Arrow function has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::3550: Function 'resolveClosedStatusOption' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3471: Function 'buildApprovalCompletionAutoCloseNote' has a complexity of 13. Maximum allowed is 7.",
+      "value": "server/server.js::3581: Arrow function has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3504: Async function 'maybeAutoCloseApprovedInstance' has a complexity of 26. Maximum allowed is 7.",
+      "value": "server/server.js::3593: Function 'buildApprovalCompletionAutoCloseNote' has a complexity of 13. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3643: Function 'shouldRetryApprovalEmailWithoutSender' has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::3626: Async function 'maybeAutoCloseApprovedInstance' has a complexity of 26. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::3663: Async function 'sendApprovalEmail' has a complexity of 41. Maximum allowed is 7.",
+      "value": "server/server.js::3765: Function 'shouldRetryApprovalEmailWithoutSender' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4083: Async function 'syncGateAfterApprovalUpdate' has a complexity of 10. Maximum allowed is 7.",
+      "value": "server/server.js::3785: Async function 'sendApprovalEmail' has a complexity of 41. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4113: Async function 'createApprovalRequestForRule' has a complexity of 43. Maximum allowed is 7.",
+      "value": "server/server.js::4205: Async function 'syncGateAfterApprovalUpdate' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4114: Arrow function has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4235: Async function 'createApprovalRequestForRule' has a complexity of 42. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4295: Async function 'handleApprovalConversation' has a complexity of 9. Maximum allowed is 7.",
+      "value": "server/server.js::4236: Arrow function has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4310: 'instances' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4415: Async function 'triggerApprovalBackfillForNewRule' has a complexity of 12. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4310: 'gates' is never reassigned. Use 'const' instead.",
-      "type": "lint"
-    },
-    {
-      "severity": 1,
-      "value": "server/server.js::4338: Async function 'handleApprovalReplyTicket' has a complexity of 18. Maximum allowed is 7.",
-      "type": "lint"
-    },
-    {
-      "severity": 1,
-      "value": "server/server.js::4361: 'instances' is never reassigned. Use 'const' instead.",
-      "type": "lint"
-    },
-    {
-      "severity": 1,
-      "value": "server/server.js::4361: 'gates' is never reassigned. Use 'const' instead.",
-      "type": "lint"
-    },
-    {
-      "severity": 1,
-      "value": "server/server.js::4402: Function 'parseExternalEventData' has a complexity of 8. Maximum allowed is 7.",
-      "type": "lint"
-    },
-    {
-      "severity": 1,
-      "value": "server/server.js::4438: Function 'findPendingApprovalAction' has a complexity of 18. Maximum allowed is 7.",
-      "type": "lint"
-    },
-    {
-      "severity": 1,
-      "value": "server/server.js::4493: Async function 'handleApprovalActionEvent' has a complexity of 23. Maximum allowed is 7.",
+      "value": "server/server.js::4489: Async function 'handleApprovalConversation' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
@@ -472,52 +452,102 @@
     },
     {
       "severity": 1,
-      "value": "server/server.js::4570: Async function 'recordSidebarApprovalDecision' has a complexity of 18. Maximum allowed is 7.",
+      "value": "server/server.js::4532: Async function 'handleApprovalReplyTicket' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4593: 'instances' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4555: 'instances' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4593: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4555: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4662: Async function 'processTicketApprovalTrigger' has a complexity of 52. Maximum allowed is 7.",
+      "value": "server/server.js::4598: Function 'parseExternalEventData' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4757: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4634: Function 'findPendingApprovalAction' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::4865: 'gates' is never reassigned. Use 'const' instead.",
+      "value": "server/server.js::4689: Async function 'handleApprovalActionEvent' has a complexity of 23. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::5026: Async method 'getApprovalDashboardData' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4700: 'instances' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::5146: Async method 'deleteApprovalRule' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4700: 'gates' is never reassigned. Use 'const' instead.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::5233: Async method 'getTicketApprovalData' has a complexity of 8. Maximum allowed is 7.",
+      "value": "server/server.js::4766: Async function 'recordSidebarApprovalDecision' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "server/server.js::5271: Async method 'evaluateTicketApprovalTrigger' has a complexity of 24. Maximum allowed is 7.",
+      "value": "server/server.js::4789: 'instances' is never reassigned. Use 'const' instead.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::4789: 'gates' is never reassigned. Use 'const' instead.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::4858: Async function 'processTicketApprovalTrigger' has a complexity of 52. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::4953: 'gates' is never reassigned. Use 'const' instead.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::5061: 'gates' is never reassigned. Use 'const' instead.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::5222: Async method 'getApprovalDashboardData' has a complexity of 8. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::5279: Async method 'saveApprovalRule' has a complexity of 17. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::5376: Async method 'deleteApprovalRule' has a complexity of 8. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::5463: Async method 'getTicketApprovalData' has a complexity of 8. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::5501: Async method 'evaluateTicketApprovalTrigger' has a complexity of 24. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "server/server.js::5583: Async method 'onTicketCreateHandler' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     }
   ],

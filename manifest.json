@@ -12,6 +12,7 @@
         "list_agents": {},
         "list_email_mailboxes": {},
         "list_email_configs": {},
+        "list_tickets": {},
         "forward_ticket_email": {},
         "add_ticket_note": {},
         "update_ticket": {}

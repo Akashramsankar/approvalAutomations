@@ -10,6 +10,7 @@ const MAX_INSTANCE_HISTORY = 400;
 const MAX_GATE_HISTORY = 300;
 const STATUS_GUARD_TTL_MS = 5 * 60 * 1000;
 const EMAIL_SEND_INFLIGHT_TTL_MS = 2 * 60 * 1000;
+const RULE_BACKFILL_UPDATED_SINCE = "1970-01-01T00:00:00Z";
 const APPROVAL_ACTION_HOOK_OPTION = "approval-email-action";
 const EMAIL_ACTIONS_ENABLED = true;
 const DEFAULT_APPROVAL_BRIDGE_RELAY_URL = normalizeUrl("https://approval-bridge.onrender.com");
@@ -996,11 +997,28 @@ function extractFieldChoices(field) {
   return extractChoiceDisplayOptions(fieldName, sources);
 }
 
+function normalizeFieldFilterKey(value) {
+  return normalizeLower(value).replace(/[^a-z0-9]/g, "");
+}
+
+function shouldExcludeTriggerField(field) {
+  const keys = [
+    field && field.name,
+    field && field.label,
+    field && field.root_name,
+    field && field.root_label,
+    field && field.element_id,
+  ].map(normalizeFieldFilterKey);
+
+  return keys.includes("sourceinfo") || keys.includes("cfsourceinfo");
+}
+
 function shouldExposeAsTriggerField(field) {
   const fieldName = normalizeText(field && field.name);
   const fieldType = normalizeLower(field && field.type);
   return Boolean(
     fieldName &&
+    !shouldExcludeTriggerField(field) &&
     !BUILT_IN_TRIGGER_FIELD_IDS.has(normalizeLower(fieldName)) &&
     (
       (Array.isArray(field && field.options) && field.options.length) ||
@@ -1604,6 +1622,12 @@ async function fetchSenderEmails() {
   }
 }
 
+async function fetchTicketsForRuleBackfill() {
+  return await fetchPaginated("list_tickets", {
+    updated_since: RULE_BACKFILL_UPDATED_SINCE,
+  });
+}
+
 async function fetchSupportData(metadata) {
   const groupsPromise = fetchGroups();
   const agentsPromise = fetchAgents();
@@ -1784,10 +1808,10 @@ function augmentMetadata(metadata, supportData) {
   const standardFields = mergeFieldLists(
     supportData && supportData.system_fields,
     metadata && metadata.standard_fields
-  );
-  const dependentFields = Array.isArray(metadata && metadata.dependent_fields)
+  ).filter((field) => !shouldExcludeTriggerField(field));
+  const dependentFields = (Array.isArray(metadata && metadata.dependent_fields)
     ? metadata.dependent_fields
-    : [];
+    : []).filter((field) => !shouldExcludeTriggerField(field));
 
   return {
     ...metadata,
@@ -2199,7 +2223,7 @@ function sanitizeRulePayload(payload, supportData, existingRule) {
         "Subject: {{ticket_subject}}",
         "Current status: {{ticket_status}}",
         "",
-        "Use the approval buttons in the email, or reply with APPROVE or REJECT if your mail client blocks buttons.",
+        "Use the approval buttons in the email.",
       ].join("\n"),
     created_at: existingRule && existingRule.created_at ? existingRule.created_at : now,
     updated_at: now,
@@ -2421,6 +2445,55 @@ function extractTicketChangeKeys(ticket) {
   });
 
   return dedupeStrings(keys);
+}
+
+function buildSyntheticCreateChanges(ticket) {
+  const snapshot = buildTicketSnapshot(ticket);
+  const changes = {};
+
+  if (snapshot.status) {
+    changes.status = ["", snapshot.status];
+  }
+
+  if (snapshot.priority) {
+    changes.priority = ["", snapshot.priority];
+  }
+
+  if (snapshot.ticket_type) {
+    changes.ticket_type = ["", snapshot.ticket_type];
+  }
+
+  if (snapshot.group) {
+    changes.group_id = ["", snapshot.group];
+  }
+
+  if (snapshot.agent) {
+    changes.responder_id = ["", snapshot.agent];
+  }
+
+  if (snapshot.source) {
+    changes.source = ["", snapshot.source];
+  }
+
+  const customFieldChanges = {};
+  Object.keys(snapshot).forEach((key) => {
+    if (["status", "priority", "ticket_type", "group", "agent", "source"].includes(key)) {
+      return;
+    }
+
+    const value = normalizeText(snapshot[key]);
+    if (!value) {
+      return;
+    }
+
+    customFieldChanges[key] = ["", value];
+  });
+
+  if (Object.keys(customFieldChanges).length) {
+    changes.custom_fields = customFieldChanges;
+  }
+
+  return changes;
 }
 
 function readNestedValue(input, path) {
@@ -2804,6 +2877,29 @@ function buildMatchedEntryRuleContexts(rules, ticket) {
     .filter((item) => item.rule && item.matchContext && item.matchContext.matched);
 }
 
+function buildExistingTicketRuleMatchContext(rule, ticket) {
+  const snapshot = buildTicketSnapshot(ticket);
+  const statusMatched = (rule.status_values || []).some((value) => normalizeLower(value) === normalizeLower(snapshot.status));
+  const extraConditions = evaluateConditions(rule, snapshot);
+  const entryTriggerMatched = getRuleEntryFieldIds(rule).length > 0 && extraConditions.matched;
+  const matched = (statusMatched && extraConditions.matched) || entryTriggerMatched;
+
+  return {
+    snapshot,
+    status_matched: statusMatched,
+    conditions_matched: extraConditions.matched,
+    matched_conditions: extraConditions.matched_conditions,
+    failed_conditions: extraConditions.failed_conditions,
+    status_changed: false,
+    relevant_field_changed: false,
+    changed_field_ids: [],
+    trigger_reason: entryTriggerMatched && !statusMatched
+      ? "rule_created_backfill_entry_conditions"
+      : "rule_created_backfill",
+    matched,
+  };
+}
+
 function createApprovalInstance(rule, ticket, domain, matchContext) {
   const ticketUrl = domain && ticket && ticket.id
     ? `https://${domain}/a/tickets/${ticket.id}`
@@ -2852,6 +2948,32 @@ function createApprovalInstance(rule, ticket, domain, matchContext) {
     updated_at: now,
     last_activity_at: now,
   };
+}
+
+function describeApprovalTriggerEvent(matchContext) {
+  const triggerReason = normalizeLower(matchContext && matchContext.trigger_reason);
+  if (triggerReason === "entry_conditions") {
+    return "the rule entry conditions matched.";
+  }
+
+  if (triggerReason === "rule_created_backfill" || triggerReason === "rule_created_backfill_entry_conditions") {
+    return "the rule was created and this ticket already matched its trigger.";
+  }
+
+  return "the ticket status changed into one of the watched statuses and the rule conditions matched.";
+}
+
+function isTerminalBackfillStatus(statusValue) {
+  const normalizedStatus = normalizeLower(statusValue).replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  const normalizedLabel = normalizeLower(resolveStatusLabel(statusValue))
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return normalizedStatus === "resolved" ||
+    normalizedStatus === "closed" ||
+    normalizedLabel === "resolved" ||
+    normalizedLabel === "closed";
 }
 
 function buildPendingApproverFromRule(ruleApprover, existingApprover) {
@@ -3334,8 +3456,8 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
   const responderGuide = [
     "How to respond:",
     visibleButtonsEnabled
-      ? "Use the approval buttons in this email, or reply with APPROVE or REJECT."
-      : "Reply to this email with APPROVE or REJECT.",
+      ? "Use the approval buttons in this email."
+      : "Use the ticket link below to review this approval request.",
     instance.ticket_url ? `Ticket link: ${instance.ticket_url}` : "",
     `Approval request ID: ${instance.id}`,
   ]
@@ -3349,8 +3471,8 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
     '<div style="margin-top:20px;padding:16px;border:1px solid #d8e2ec;border-radius:14px;background:#f7fbff;">',
     '<strong style="display:block;margin-bottom:8px;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;color:#406384;">How To Respond</strong>',
     visibleButtonsEnabled
-      ? '<div style="margin:0 0 10px;">Use a button below, or reply with <strong>APPROVE</strong> or <strong>REJECT</strong>.</div>'
-      : '<div style="margin:0 0 8px;">Reply to this email with <strong>APPROVE</strong> or <strong>REJECT</strong>.</div>',
+      ? '<div style="margin:0 0 10px;">Use a button below to approve or reject.</div>'
+      : '<div style="margin:0 0 8px;">Use the ticket link below to review this approval request.</div>',
     visibleButtonsEnabled
       ? `<div style="margin:0 0 8px;">${visibleButtonsMarkup}</div>`
       : "",
@@ -4259,9 +4381,7 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
         instance.ticket_id,
         [
           `<strong>Approvals Automation Pro</strong> sent an approval request for rule <strong>${escapeHtml(rule.name)}</strong>.`,
-          effectiveMatchContext.trigger_reason === "entry_conditions"
-            ? "<br>Trigger event: the rule entry conditions matched."
-            : "<br>Trigger event: the ticket status changed into one of the watched statuses and the rule conditions matched.",
+          `<br>Trigger event: ${escapeHtml(describeApprovalTriggerEvent(effectiveMatchContext))}`,
           instance.requested_status_label
             ? `<br>Watched status selection: <strong>${escapeHtml(instance.requested_status_label)}</strong>`
             : "",
@@ -4270,8 +4390,8 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
           normalizeLower(instance && instance.email_button_mode) === "bridge"
             ? "<br>External approval buttons were included in the outgoing email."
             : normalizeLower(instance && instance.email_button_mode) === "mailto"
-              ? "<br>Approval reply buttons were included in the outgoing email."
-              : "<br>Recipients can reply with APPROVE or REJECT to record their decision.",
+              ? "<br>Approval action buttons were included in the outgoing email."
+              : "<br>Approval instructions were included in the outgoing email.",
           instance.email_failed_count
             ? `<br>Delivery issues: ${escapeHtml(listFailedDeliveryEmails(instance))}`
             : "",
@@ -4290,6 +4410,80 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
   }
 
   return instance;
+}
+
+async function triggerApprovalBackfillForNewRule(rule, instances, gates) {
+  if (!rule || rule.active === false) {
+    return {
+      scanned_tickets: 0,
+      matched_tickets: 0,
+      created_instances: [],
+      skipped_for_gate: 0,
+      skipped_terminal: 0,
+    };
+  }
+
+  let actionConfig = await readRuntimeConfig();
+  try {
+    actionConfig = await initializeApprovalRuntimeConfig(false);
+  } catch (error) {
+    console.error("Unable to initialize approval action callback:", buildErrorMessage(error, "Approval action setup failed."));
+  }
+
+  const rawTickets = await fetchTicketsForRuleBackfill();
+  const tickets = (Array.isArray(rawTickets) ? rawTickets : [])
+    .map((ticket) => sanitizeTicketForTriggerEvaluation(ticket))
+    .filter((ticket) => ticket && Number(ticket.id));
+
+  let workingInstances = Array.isArray(instances) ? instances : [];
+  let matchedTickets = 0;
+  let skippedForGate = 0;
+  let skippedTerminal = 0;
+  const createdInstances = [];
+
+  for (const ticket of tickets) {
+    if (isTerminalBackfillStatus(ticket && ticket.status)) {
+      skippedTerminal += 1;
+      continue;
+    }
+
+    const matchContext = buildExistingTicketRuleMatchContext(rule, ticket);
+    if (!matchContext.matched) {
+      continue;
+    }
+
+    matchedTickets += 1;
+
+    if (findOpenStatusGate(gates, ticket.id)) {
+      skippedForGate += 1;
+      continue;
+    }
+
+    const nextInstance = await createApprovalRequestForRule(
+      rule,
+      ticket,
+      "",
+      workingInstances,
+      actionConfig,
+      matchContext,
+      null
+    );
+
+    if (!nextInstance) {
+      continue;
+    }
+
+    workingInstances = replaceApprovalInstance(workingInstances, nextInstance);
+    createdInstances.push(nextInstance);
+  }
+
+  return {
+    scanned_tickets: tickets.length,
+    matched_tickets: matchedTickets,
+    created_instances: createdInstances,
+    skipped_for_gate: skippedForGate,
+    skipped_terminal: skippedTerminal,
+  };
 }
 
 async function handleApprovalConversation(args) {
@@ -4339,7 +4533,7 @@ async function handleApprovalReplyTicket(args) {
   const ticket = args && args.data && args.data.ticket;
   const requester = args && args.data && args.data.requester;
   if (!ticket) {
-    return;
+    return false;
   }
 
   const approverEmail =
@@ -4355,7 +4549,7 @@ async function handleApprovalReplyTicket(args) {
   const requestId = extractApprovalRequestId(combinedText);
 
   if (!approverEmail || !decision || !requestId) {
-    return;
+    return false;
   }
 
   let [instances, gates] = await Promise.all([readInstances(), readStatusGates()]);
@@ -4366,7 +4560,7 @@ async function handleApprovalReplyTicket(args) {
       approver_email: approverEmail,
       request_id: requestId,
     });
-    return;
+    return true;
   }
 
   const applyResult = await applyApprovalDecision(
@@ -4378,7 +4572,7 @@ async function handleApprovalReplyTicket(args) {
     "email"
   );
   if (!applyResult.changed) {
-    return;
+    return true;
   }
 
   await Promise.all([writeInstances(instances), writeStatusGates(gates)]);
@@ -4397,6 +4591,8 @@ async function handleApprovalReplyTicket(args) {
     matched_instance_ids: matchingInstances.map((instance) => normalizeText(instance && instance.id)),
     original_ticket_ids: dedupeStrings(matchingInstances.map((instance) => String(Number(instance && instance.ticket_id) || 0))),
   });
+
+  return true;
 }
 
 function parseExternalEventData(data) {
@@ -5092,6 +5288,7 @@ exports = {
       const [instances, gates] = await Promise.all([readInstances(), readStatusGates()]);
       phase = "locate_existing_rule";
       const existingRule = rules.find((rule) => rule.id === payload.id) || null;
+      const isNewRule = !existingRule;
       phase = "sanitize_rule";
       const sanitizedRule = sanitizeRulePayload(payload, supportData, existingRule);
       phase = "compose_next_rules";
@@ -5118,6 +5315,37 @@ exports = {
           syncResult.notes.map((note) => addPrivateNote(note.ticket_id, note.body))
         );
       }
+      let backfillResult = {
+        scanned_tickets: 0,
+        matched_tickets: 0,
+        created_instances: [],
+        skipped_for_gate: 0,
+        skipped_terminal: 0,
+        error: "",
+      };
+      if (isNewRule && sanitizedRule.active !== false) {
+        phase = "backfill_existing_matching_tickets";
+        try {
+          backfillResult = await triggerApprovalBackfillForNewRule(sanitizedRule, instances, gates);
+          logAutomationInfo("approval_rule_existing_ticket_backfill_completed", {
+            rule_id: normalizeText(sanitizedRule.id),
+            rule_name: normalizeText(sanitizedRule.name),
+            scanned_tickets: Number(backfillResult.scanned_tickets || 0),
+            matched_tickets: Number(backfillResult.matched_tickets || 0),
+            created_instances: Number((backfillResult.created_instances || []).length),
+            created_instance_ids: (backfillResult.created_instances || []).map((instance) => normalizeText(instance && instance.id)),
+            skipped_for_gate: Number(backfillResult.skipped_for_gate || 0),
+            skipped_terminal: Number(backfillResult.skipped_terminal || 0),
+          });
+        } catch (error) {
+          backfillResult.error = buildErrorMessage(error, "Failed to evaluate existing tickets for the new rule.");
+          logAutomationWarn("approval_rule_existing_ticket_backfill_failed", {
+            rule_id: normalizeText(sanitizedRule.id),
+            rule_name: normalizeText(sanitizedRule.name),
+            error: normalizeText(backfillResult.error),
+          });
+        }
+      }
       phase = "build_response";
 
       if (syncResult.changed) {
@@ -5133,6 +5361,8 @@ exports = {
         success: true,
         rule: mapRuleForClient(sanitizedRule, {}),
         synced_instances: syncResult.updates.length,
+        backfilled_instances: (backfillResult.created_instances || []).length,
+        backfill_error: normalizeText(backfillResult.error),
       });
     } catch (error) {
       const detail = `[${phase}] ${buildErrorMessage(error, "Failed to save the approval rule.")}`;
@@ -5352,7 +5582,22 @@ exports = {
 
   onTicketCreateHandler: async function (args) {
     try {
-      await handleApprovalReplyTicket(args);
+      const handledApprovalReply = await handleApprovalReplyTicket(args);
+      if (handledApprovalReply) {
+        return;
+      }
+
+      const ticket = sanitizeTicketForTriggerEvaluation(args && args.data && args.data.ticket);
+      if (ticket && !hasTicketChanges(ticket)) {
+        ticket.changes = buildSyntheticCreateChanges(ticket);
+      }
+
+      await processTicketApprovalTrigger({
+        ticket,
+        domain: args && args.domain,
+        source: "onTicketCreate",
+        runtime_args: args,
+      });
     } catch (error) {
       console.error("onTicketCreateHandler failed:", buildErrorMessage(error, "Ticket create handler failed."));
     }
