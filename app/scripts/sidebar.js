@@ -27,6 +27,7 @@ const state = {
   },
   pendingFieldChanges: {},
   postUpdateProbeToken: 0,
+  postUpdateRefreshActive: false,
   loadRequestToken: 0,
   lastLiveFieldSyncSignature: "",
   actionInFlight: "",
@@ -108,6 +109,7 @@ async function loadSidebar(options) {
     state.instances = [];
     state.pendingFieldChanges = {};
     state.postUpdateProbeToken += 1;
+    state.postUpdateRefreshActive = false;
     state.actionInFlight = "";
   }
 
@@ -140,7 +142,12 @@ async function loadSidebar(options) {
       return;
     }
 
-    state.instances = sortInstances(Array.isArray(payload.instances) ? payload.instances : []);
+    const nextInstances = sortInstances(Array.isArray(payload.instances) ? payload.instances : []);
+    if (shouldPreserveCurrentInstances(nextInstances, options)) {
+      return;
+    }
+
+    state.instances = nextInstances;
   } catch (error) {
     if (loadToken !== state.loadRequestToken || requestTicketId !== state.ticketId) {
       return;
@@ -379,41 +386,48 @@ async function handleTicketPropertiesUpdated(event) {
 
 async function startPostUpdateProbe(eventData, syntheticChanges) {
   state.postUpdateProbeToken += 1;
+  state.postUpdateRefreshActive = true;
   const probeToken = state.postUpdateProbeToken;
   const baselineSignature = buildInstanceSignature(state.instances);
 
-  for (let attempt = 1; attempt <= POST_UPDATE_REFRESH_ATTEMPTS; attempt += 1) {
-    if (probeToken !== state.postUpdateProbeToken) {
-      return;
-    }
+  try {
+    for (let attempt = 1; attempt <= POST_UPDATE_REFRESH_ATTEMPTS; attempt += 1) {
+      if (probeToken !== state.postUpdateProbeToken) {
+        return;
+      }
 
-    await loadSidebar({ silent: true, keepMessage: true });
-    const currentSignature = buildInstanceSignature(state.instances);
-
-    if (currentSignature && currentSignature !== baselineSignature) {
-      clearPendingFieldChanges();
-      return;
-    }
-
-    if (
-      attempt === POST_UPDATE_FALLBACK_ATTEMPT &&
-      shouldInvokeFallbackTrigger(syntheticChanges, eventData)
-    ) {
-      await invokeFallbackTriggerEvaluation(syntheticChanges, eventData);
       await loadSidebar({ silent: true, keepMessage: true });
+      const currentSignature = buildInstanceSignature(state.instances);
 
-      const afterFallbackSignature = buildInstanceSignature(state.instances);
-      if (afterFallbackSignature && afterFallbackSignature !== baselineSignature) {
+      if (currentSignature && currentSignature !== baselineSignature) {
         clearPendingFieldChanges();
         return;
       }
-    }
 
-    if (attempt < POST_UPDATE_REFRESH_ATTEMPTS) {
-      await delay(POST_UPDATE_REFRESH_MS);
+      if (
+        attempt === POST_UPDATE_FALLBACK_ATTEMPT &&
+        shouldInvokeFallbackTrigger(syntheticChanges, eventData)
+      ) {
+        await invokeFallbackTriggerEvaluation(syntheticChanges, eventData);
+        await loadSidebar({ silent: true, keepMessage: true });
+
+        const afterFallbackSignature = buildInstanceSignature(state.instances);
+        if (afterFallbackSignature && afterFallbackSignature !== baselineSignature) {
+          clearPendingFieldChanges();
+          return;
+        }
+      }
+
+      if (attempt < POST_UPDATE_REFRESH_ATTEMPTS) {
+        await delay(POST_UPDATE_REFRESH_MS);
+      }
+    }
+    clearPendingFieldChanges();
+  } finally {
+    if (probeToken === state.postUpdateProbeToken) {
+      state.postUpdateRefreshActive = false;
     }
   }
-  clearPendingFieldChanges();
 }
 
 async function invokeFallbackTriggerEvaluation(syntheticChanges, eventData) {
@@ -580,6 +594,16 @@ function buildInstanceSignature(instances) {
   return (Array.isArray(instances) ? instances : [])
     .map((instance) => `${instance.id}:${instance.updated_at}`)
     .join("|");
+}
+
+function shouldPreserveCurrentInstances(nextInstances, options) {
+  return Boolean(
+    options &&
+    options.silent &&
+    state.postUpdateRefreshActive &&
+    state.instances.length &&
+    !nextInstances.length
+  );
 }
 
 function shouldInvokeFallbackTrigger(syntheticChanges, eventData) {

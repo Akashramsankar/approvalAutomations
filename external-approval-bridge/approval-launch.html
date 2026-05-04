@@ -200,6 +200,10 @@
       var hook = String(search.get("hook") || "").trim();
       var token = String(search.get("token") || "").trim();
       var decision = String(search.get("decision") || "").trim().toLowerCase() === "rejected" ? "rejected" : "approved";
+      var ticketSubject = String(search.get("ticket_subject") || "").trim();
+      var ruleName = String(search.get("rule_name") || "").trim();
+      var approver = String(search.get("approver") || "").trim();
+      var requestId = String(search.get("request_id") || "").trim();
 
       var continueLink = document.getElementById("continueLink");
       var retryLink = document.getElementById("retryLink");
@@ -230,6 +234,18 @@
         token: token,
         decision: decision
       });
+      if (ticketSubject) {
+        finalParams.set("ticket_subject", ticketSubject);
+      }
+      if (ruleName) {
+        finalParams.set("rule_name", ruleName);
+      }
+      if (approver) {
+        finalParams.set("approver", approver);
+      }
+      if (requestId) {
+        finalParams.set("request_id", requestId);
+      }
       var finalApprovalUrl = bridgeBase + "/approval?" + finalParams.toString();
       var hasRedirected = false;
       var startedAt = Date.now();

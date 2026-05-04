@@ -9,6 +9,7 @@ const METADATA_CACHE_TTL_MS = 60000;
 const MAX_INSTANCE_HISTORY = 400;
 const MAX_GATE_HISTORY = 300;
 const STATUS_GUARD_TTL_MS = 5 * 60 * 1000;
+const EMAIL_SEND_INFLIGHT_TTL_MS = 2 * 60 * 1000;
 const APPROVAL_ACTION_HOOK_OPTION = "approval-email-action";
 const EMAIL_ACTIONS_ENABLED = true;
 const DEFAULT_APPROVAL_BRIDGE_RELAY_URL = normalizeUrl("https://approval-bridge.onrender.com");
@@ -57,7 +58,12 @@ const DEFAULT_SOURCE_OPTIONS = [
 ];
 
 const SYSTEM_OPTION_LABELS = {
-  status: Object.fromEntries(DEFAULT_STATUS_OPTIONS.map((item) => [item.value, item.label])),
+  status: Object.fromEntries(
+    [
+      ...DEFAULT_STATUS_OPTIONS,
+      ...Object.entries(LEGACY_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+    ].map((item) => [item.value, item.label])
+  ),
   priority: Object.fromEntries(DEFAULT_PRIORITY_OPTIONS.map((item) => [item.value, item.label])),
   source: Object.fromEntries(DEFAULT_SOURCE_OPTIONS.map((item) => [item.value, item.label])),
 };
@@ -188,6 +194,28 @@ function resolveStatusLabel(value) {
     SYSTEM_OPTION_LABELS.status[normalized] ||
     STATUS_LABELS[normalized] ||
     normalized
+  );
+}
+
+function resolveAgentFacingLabel(input) {
+  if (!input || typeof input !== "object") {
+    return "";
+  }
+
+  return normalizeText(
+    input.label ||
+    input.name ||
+    input.display_name ||
+    input.displayName ||
+    input.text ||
+    input.title ||
+    input.label_for_agents ||
+    input.labelForAgents ||
+    input.value ||
+    input.id ||
+    input.key ||
+    input.label_for_customers ||
+    input.labelForCustomers
   );
 }
 
@@ -501,6 +529,7 @@ function maybeAddOption(bucket, item, settings) {
   }
 
   const preferIdValue = Boolean(settings && settings.preferIdValue);
+  const preferredLabel = resolveAgentFacingLabel(item);
   const value = normalizeText(
     (preferIdValue ? item.id || item.value : item.value || item.id) ||
       item.key ||
@@ -511,17 +540,7 @@ function maybeAddOption(bucket, item, settings) {
       item.text ||
       item.title
   );
-  const label = normalizeText(
-    item.label ||
-      item.name ||
-      item.display_name ||
-      item.displayName ||
-      item.text ||
-      item.title ||
-      item.value ||
-      item.id ||
-      item.key
-  );
+  const label = preferredLabel || normalizeText(item.value || item.id || item.key);
 
   if (!value || !label) {
     return false;
@@ -644,14 +663,7 @@ function collectChoiceLabels(input, bucket) {
     return;
   }
 
-  const preferredLabel = normalizeText(
-    input.label ||
-      input.text ||
-      input.name ||
-      input.display_name ||
-      input.displayName ||
-      input.value
-  );
+  const preferredLabel = resolveAgentFacingLabel(input) || normalizeText(input.value);
 
   if (preferredLabel) {
     bucket.push(preferredLabel);
@@ -788,8 +800,40 @@ function extractChoiceDisplayOptions(fieldId, input) {
   );
 }
 
+function dedupeStatusOptions(items) {
+  const unique = [];
+  const indexByLabel = new Map();
+
+  dedupeOptions(items).forEach((item) => {
+    const labelKey = normalizeOptionLookupKey("status", item && item.label);
+    if (!labelKey) {
+      return;
+    }
+
+    const existingIndex = indexByLabel.get(labelKey);
+    if (existingIndex === undefined) {
+      indexByLabel.set(labelKey, unique.length);
+      unique.push(item);
+      return;
+    }
+
+    const existing = unique[existingIndex];
+    const existingValue = normalizeText(existing && existing.value);
+    const nextValue = normalizeText(item && item.value);
+    const shouldReplace =
+      !/^\d+$/.test(existingValue) &&
+      /^\d+$/.test(nextValue);
+
+    if (shouldReplace) {
+      unique[existingIndex] = item;
+    }
+  });
+
+  return unique;
+}
+
 function withReadableLabels(fieldId, options) {
-  return dedupeOptions((Array.isArray(options) ? options : []).map((option) => {
+  const normalizedOptions = (Array.isArray(options) ? options : []).map((option) => {
     const normalizedOption = typeof option === "string"
       ? { value: option, label: option }
       : option;
@@ -797,7 +841,11 @@ function withReadableLabels(fieldId, options) {
       value: resolveCanonicalOptionValue(fieldId, normalizedOption),
       label: resolveReadableOptionLabel(fieldId, normalizedOption),
     };
-  }));
+  });
+
+  return normalizeLower(fieldId) === "status"
+    ? dedupeStatusOptions(normalizedOptions)
+    : dedupeOptions(normalizedOptions);
 }
 
 function buildOptionLookup(fieldId, options) {
@@ -973,7 +1021,7 @@ function normalizeFieldNode(field, level) {
   return {
     id: Number(field.id),
     name,
-    label: normalizeText(field.label || field.labelForCustomers) || humanizeFieldName(name),
+    label: resolveAgentFacingLabel(field) || humanizeFieldName(name),
     type: normalizeText(field.type || "dropdown"),
     element_id: name,
     is_default: Boolean(
@@ -1096,7 +1144,7 @@ function createLiveMetadataField(field) {
   return {
     id: Number(field && field.id) || 0,
     name,
-    label: normalizeText(field && field.label) || humanizeFieldName(name),
+    label: resolveAgentFacingLabel(field) || humanizeFieldName(name),
     type: normalizeText(field && field.type) || (name.startsWith("cf_") ? "custom_dropdown" : "dropdown"),
     level: 1,
     element_id: normalizeText(field && field.element_id) || name,
@@ -1478,7 +1526,7 @@ async function fetchTicketFieldMetadata() {
         .map((field) => ({
           id: Number(field && field.id) || 0,
           name: normalizeText(field && field.name),
-          label: normalizeText(field && (field.label || field.labelForCustomers)),
+          label: resolveAgentFacingLabel(field),
           type: normalizeText(field && field.type),
           choice_source_count: extractFieldChoiceSources(field).length,
           extracted_option_count: extractFieldChoices(field).length,
@@ -1800,36 +1848,77 @@ async function readInstances() {
   return Array.isArray(stored && stored.instances) ? stored.instances : [];
 }
 
-function keepLatestInstancesPerTicket(instances) {
-  const latestInstances = [];
-  const seenTicketIds = new Set();
+function dedupeInstancesById(instances) {
+  const unique = [];
+  const seen = new Set();
 
   [...(Array.isArray(instances) ? instances : [])]
     .sort((left, right) => Number(right.updated_at || 0) - Number(left.updated_at || 0))
     .forEach((instance) => {
-      const ticketId = Number(instance && instance.ticket_id);
-      if (!instance || !ticketId || seenTicketIds.has(ticketId)) {
+      const instanceId = normalizeText(instance && instance.id);
+      if (!instance || !instanceId || seen.has(instanceId)) {
         return;
       }
 
-      seenTicketIds.add(ticketId);
-      latestInstances.push(instance);
+      seen.add(instanceId);
+      unique.push(instance);
     });
 
-  return latestInstances;
+  return unique;
 }
 
-function replaceTicketApprovalInstance(instances, nextInstance) {
-  return keepLatestInstancesPerTicket([
+function replaceApprovalInstance(instances, nextInstance) {
+  return dedupeInstancesById([
     nextInstance,
     ...(Array.isArray(instances) ? instances : []).filter((instance) => {
-      return Number(instance && instance.ticket_id) !== Number(nextInstance && nextInstance.ticket_id);
+      return normalizeText(instance && instance.id) !== normalizeText(nextInstance && nextInstance.id);
     }),
   ]);
 }
 
+function markApprovalEmailDispatchStarted(instance) {
+  if (!instance) {
+    return instance;
+  }
+
+  const startedAt = Date.now();
+  instance.email_status = "sending";
+  instance.email_error = "";
+  instance.email_dispatch_started_at = startedAt;
+  instance.updated_at = startedAt;
+  instance.last_activity_at = startedAt;
+  return instance;
+}
+
+function shouldRetryPendingApprovalEmail(instance) {
+  if (!instance) {
+    return false;
+  }
+
+  const status = normalizeLower(instance.email_status);
+  if (status === "failed") {
+    return true;
+  }
+
+  if (!["queued", "sending"].includes(status) && Number(instance.email_sent_count || 0) > 0) {
+    return false;
+  }
+
+  const startedAt = Number(
+    instance.email_dispatch_started_at ||
+    instance.updated_at ||
+    instance.created_at ||
+    0
+  );
+  if (!startedAt) {
+    return true;
+  }
+
+  return (Date.now() - startedAt) >= EMAIL_SEND_INFLIGHT_TTL_MS;
+}
+
 async function writeInstances(instances) {
-  const sortedInstances = keepLatestInstancesPerTicket(instances)
+  const sortedInstances = dedupeInstancesById(instances)
     .sort((left, right) => Number(right.updated_at || 0) - Number(left.updated_at || 0))
     .slice(0, MAX_INSTANCE_HISTORY);
 
@@ -2747,6 +2836,7 @@ function createApprovalInstance(rule, ticket, domain, matchContext) {
     state: "pending",
     email_status: "queued",
     email_error: "",
+    email_dispatch_started_at: 0,
     approvers,
     matched_conditions: (matchContext.matched_conditions || []).map((condition) => summarizeCondition(condition)),
     auto_close_state: autoCloseAfterApproval ? "not_attempted" : "disabled",
@@ -3042,37 +3132,54 @@ function buildMailtoButtonMarkup(targetEmail, instance, decision, label, palette
   return `<a href="${escapeHtml(href)}" style="${palette}">${escapeHtml(label)}</a>`;
 }
 
-function buildApprovalBridgeLink(bridgeUrl, launchUrl, hookUrl, token, decision) {
+function buildApprovalBridgeLink(bridgeUrl, launchUrl, hookUrl, token, decision, metadata) {
   const normalizedBridgeUrl = normalizeUrl(bridgeUrl);
   const normalizedLaunchUrl = normalizeText(launchUrl);
   const normalizedHookUrl = normalizeText(hookUrl);
   const normalizedToken = normalizeText(token);
   const normalizedDecision = normalizeLower(decision) === "rejected" ? "rejected" : "approved";
+  const ticketSubject = normalizeText(metadata && metadata.ticket_subject);
+  const ruleName = normalizeText(metadata && metadata.rule_name);
+  const approver = normalizeText(metadata && metadata.approver);
+  const requestId = normalizeText(metadata && metadata.request_id);
 
   if (!normalizedBridgeUrl || !normalizedHookUrl || !normalizedToken) {
     return "";
   }
 
+  const sharedParams = {
+    hook: normalizedHookUrl,
+    token: normalizedToken,
+    decision: normalizedDecision,
+  };
+
+  if (ticketSubject) {
+    sharedParams.ticket_subject = ticketSubject;
+  }
+  if (ruleName) {
+    sharedParams.rule_name = ruleName;
+  }
+  if (approver) {
+    sharedParams.approver = approver;
+  }
+  if (requestId) {
+    sharedParams.request_id = requestId;
+  }
+
   if (normalizedLaunchUrl) {
     const launchQuery = buildQueryString({
       bridge: normalizedBridgeUrl,
-      hook: normalizedHookUrl,
-      token: normalizedToken,
-      decision: normalizedDecision,
+      ...sharedParams,
     });
     return `${normalizedLaunchUrl}${normalizedLaunchUrl.includes("?") ? "&" : "?"}${launchQuery}`;
   }
 
-  const query = buildQueryString({
-    hook: normalizedHookUrl,
-    token: normalizedToken,
-    decision: normalizedDecision,
-  });
+  const query = buildQueryString(sharedParams);
   return `${normalizedBridgeUrl}/approval${query ? `?${query}` : ""}`;
 }
 
-function buildBridgeButtonMarkup(bridgeUrl, launchUrl, hookUrl, token, decision, label, palette) {
-  const href = buildApprovalBridgeLink(bridgeUrl, launchUrl, hookUrl, token, decision);
+function buildBridgeButtonMarkup(bridgeUrl, launchUrl, hookUrl, token, decision, label, palette, metadata) {
+  const href = buildApprovalBridgeLink(bridgeUrl, launchUrl, hookUrl, token, decision, metadata);
   if (!href) {
     return "";
   }
@@ -3122,7 +3229,13 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
       "font-family:Arial,sans-serif",
       "line-height:1",
       "margin:0 8px 8px 0",
-    ].join(";")
+    ].join(";"),
+    {
+      ticket_subject: instance && instance.ticket_subject,
+      rule_name: rule && rule.name,
+      approver: approverLabel,
+      request_id: instance && instance.id,
+    }
   );
   emailActions.reject_bridge_button = buildBridgeButtonMarkup(
     normalizeUrl(actionConfig && actionConfig.approval_bridge_url),
@@ -3144,7 +3257,13 @@ function buildEmailContent(rule, instance, approver, actionConfig) {
       "font-family:Arial,sans-serif",
       "line-height:1",
       "margin:0 8px 8px 0",
-    ].join(";")
+    ].join(";"),
+    {
+      ticket_subject: instance && instance.ticket_subject,
+      rule_name: rule && rule.name,
+      approver: approverLabel,
+      request_id: instance && instance.id,
+    }
   );
   if (emailActions.button_mode !== "bridge") {
     emailActions.approve_mailto_button = buildMailtoButtonMarkup(
@@ -3531,7 +3650,14 @@ function shouldRetryApprovalEmailWithoutSender(error, senderEmail) {
   }
 
   const detail = normalizeLower(buildErrorMessage(error, ""));
-  return Boolean(detail && detail.includes("validation failed"));
+  if (!detail || !detail.includes("validation failed")) {
+    return false;
+  }
+
+  return detail.includes("from_email") ||
+    detail.includes("from email") ||
+    detail.includes("sender email") ||
+    detail.includes("sender_email");
 }
 
 async function sendApprovalEmail(rule, instance, actionConfig) {
@@ -3998,9 +4124,7 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
   });
 
   if (existingPending) {
-    const shouldRetryEmail =
-      ["failed", "queued"].includes(normalizeLower(existingPending.email_status)) ||
-      !Number(existingPending.email_sent_count || 0);
+    const shouldRetryEmail = shouldRetryPendingApprovalEmail(existingPending);
 
     if (shouldRetryEmail) {
       logAutomationInfo("approval_request_retry_existing_pending_email", {
@@ -4012,11 +4136,9 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
       });
 
       try {
+        markApprovalEmailDispatchStarted(existingPending);
+        await writeInstances(instances);
         await sendApprovalEmail(rule, existingPending, actionConfig);
-        await addPrivateNote(
-          existingPending.ticket_id,
-          `<strong>Approvals Automation Pro</strong> retried the approval email for existing pending request <strong>${escapeHtml(existingPending.id)}</strong>.`
-        );
       } catch (error) {
         existingPending.email_status = "failed";
         existingPending.email_error = buildErrorMessage(error, "Failed to resend approval email.");
@@ -4035,6 +4157,23 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
         );
       }
 
+      if (normalizeLower(existingPending.email_status) !== "failed") {
+        try {
+          await addPrivateNote(
+            existingPending.ticket_id,
+            `<strong>Approvals Automation Pro</strong> retried the approval email for existing pending request <strong>${escapeHtml(existingPending.id)}</strong>.`
+          );
+        } catch (error) {
+          logAutomationWarn("approval_request_retry_note_failed", {
+            ticket: summarizeTicketForLog(ticket),
+            rule: summarizeRuleForLog(rule),
+            gate_id: normalizeText(gate && gate.id),
+            existing_instance_id: normalizeText(existingPending.id),
+            error: buildErrorMessage(error, "Failed to add retry note."),
+          });
+        }
+      }
+
       return existingPending;
     }
 
@@ -4043,6 +4182,8 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
       rule: summarizeRuleForLog(rule),
       gate_id: normalizeText(gate && gate.id),
       existing_instance_id: normalizeText(existingPending.id),
+      email_status: normalizeText(existingPending.email_status),
+      email_sent_count: Number(existingPending.email_sent_count || 0),
     });
     return null;
   }
@@ -4080,6 +4221,8 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
     normalizeText(gate && gate.requested_status_label) ||
     normalizeText(rule && rule.summary && rule.summary.status_text) ||
     (Array.isArray(rule && rule.status_value_labels) ? rule.status_value_labels.join(" / ") : "");
+  markApprovalEmailDispatchStarted(instance);
+  await writeInstances(replaceApprovalInstance(instances, instance));
 
   logAutomationInfo("approval_rule_matched", {
     ticket: summarizeTicketForLog(ticket),
@@ -4092,28 +4235,6 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
 
   try {
     await sendApprovalEmail(rule, instance, actionConfig);
-    await addPrivateNote(
-      instance.ticket_id,
-      [
-        `<strong>Approvals Automation Pro</strong> sent an approval request for rule <strong>${escapeHtml(rule.name)}</strong>.`,
-        effectiveMatchContext.trigger_reason === "entry_conditions"
-          ? "<br>Trigger event: the rule entry conditions matched."
-          : "<br>Trigger event: the ticket status changed into one of the watched statuses and the rule conditions matched.",
-        instance.requested_status_label
-          ? `<br>Watched status selection: <strong>${escapeHtml(instance.requested_status_label)}</strong>`
-          : "",
-        `<br>Approvers: ${escapeHtml((instance.approvers || []).map((approver) => approver.email).join(", "))}`,
-        `<br>Mode: ${escapeHtml(instance.approval_mode === "anyone" ? "Anyone can approve" : "Everyone must approve")}`,
-        normalizeLower(instance && instance.email_button_mode) === "bridge"
-          ? "<br>External approval buttons were included in the outgoing email."
-          : normalizeLower(instance && instance.email_button_mode) === "mailto"
-            ? "<br>Approval reply buttons were included in the outgoing email."
-            : "<br>Recipients can reply with APPROVE or REJECT to record their decision.",
-        instance.email_failed_count
-          ? `<br>Delivery issues: ${escapeHtml(listFailedDeliveryEmails(instance))}`
-          : "",
-      ].join("")
-    );
   } catch (error) {
     instance.email_status = "failed";
     instance.email_error = buildErrorMessage(error, "Failed to send approval email.");
@@ -4130,6 +4251,42 @@ async function createApprovalRequestForRule(rule, ticket, domain, instances, act
       instance.ticket_id,
       `<strong>Approvals Automation Pro</strong> could not send the approval request for rule <strong>${escapeHtml(rule.name)}</strong>: ${escapeHtml(instance.email_error)}`
     );
+  }
+
+  if (normalizeLower(instance.email_status) !== "failed") {
+    try {
+      await addPrivateNote(
+        instance.ticket_id,
+        [
+          `<strong>Approvals Automation Pro</strong> sent an approval request for rule <strong>${escapeHtml(rule.name)}</strong>.`,
+          effectiveMatchContext.trigger_reason === "entry_conditions"
+            ? "<br>Trigger event: the rule entry conditions matched."
+            : "<br>Trigger event: the ticket status changed into one of the watched statuses and the rule conditions matched.",
+          instance.requested_status_label
+            ? `<br>Watched status selection: <strong>${escapeHtml(instance.requested_status_label)}</strong>`
+            : "",
+          `<br>Approvers: ${escapeHtml((instance.approvers || []).map((approver) => approver.email).join(", "))}`,
+          `<br>Mode: ${escapeHtml(instance.approval_mode === "anyone" ? "Anyone can approve" : "Everyone must approve")}`,
+          normalizeLower(instance && instance.email_button_mode) === "bridge"
+            ? "<br>External approval buttons were included in the outgoing email."
+            : normalizeLower(instance && instance.email_button_mode) === "mailto"
+              ? "<br>Approval reply buttons were included in the outgoing email."
+              : "<br>Recipients can reply with APPROVE or REJECT to record their decision.",
+          instance.email_failed_count
+            ? `<br>Delivery issues: ${escapeHtml(listFailedDeliveryEmails(instance))}`
+            : "",
+        ].join("")
+      );
+    } catch (error) {
+      logAutomationWarn("approval_request_note_failed", {
+        ticket: summarizeTicketForLog(ticket),
+        rule: summarizeRuleForLog(rule),
+        match: summarizeMatchContextForLog(effectiveMatchContext),
+        gate_id: normalizeText(gate && gate.id),
+        instance_id: normalizeText(instance.id),
+        error: buildErrorMessage(error, "Failed to add approval note."),
+      });
+    }
   }
 
   return instance;
@@ -4621,19 +4778,22 @@ async function processTicketApprovalTrigger(options) {
       console.error("Unable to initialize approval action callback:", buildErrorMessage(error, "Approval action setup failed."));
     }
 
-    const latestMatchedEntryRule = matchedEntryRules[0];
     const createdInstances = [];
-    const nextInstance = await createApprovalRequestForRule(
-      latestMatchedEntryRule.rule,
-      ticket,
-      options && options.domain,
-      instances,
-      actionConfig,
-      latestMatchedEntryRule.matchContext,
-      null
-    );
-    if (nextInstance) {
-      instances = replaceTicketApprovalInstance(instances, nextInstance);
+    for (const matchedEntryRule of matchedEntryRules) {
+      const nextInstance = await createApprovalRequestForRule(
+        matchedEntryRule.rule,
+        ticket,
+        options && options.domain,
+        instances,
+        actionConfig,
+        matchedEntryRule.matchContext,
+        null
+      );
+      if (!nextInstance) {
+        continue;
+      }
+
+      instances = replaceApprovalInstance(instances, nextInstance);
       createdInstances.push(nextInstance);
     }
 
@@ -4754,7 +4914,7 @@ async function processTicketApprovalTrigger(options) {
     };
   }
 
-  const reusableEntryMatches = matchedRules.slice(0, 1).map((matchedRule) => ({
+  const reusableEntryMatches = matchedRules.map((matchedRule) => ({
     ...matchedRule,
     instance: findReusableEntryApprovalInstance(
       instances,
@@ -4764,27 +4924,14 @@ async function processTicketApprovalTrigger(options) {
     ),
   }));
 
-  if (reusableEntryMatches.length && reusableEntryMatches.every((item) => item.instance && item.instance.state === "approved")) {
-    reusableEntryMatches.forEach((item) => {
+  const approvedReusableMatches = reusableEntryMatches.filter((item) => {
+    return item.instance && item.instance.state === "approved";
+  });
+
+  if (approvedReusableMatches.length) {
+    approvedReusableMatches.forEach((item) => {
       consumeReusableApprovalInstance(item.instance, statusChange);
     });
-    await writeInstances(instances);
-    await addPrivateNote(ticket.id, buildReusableApprovalAppliedNote(
-      statusChange,
-      reusableEntryMatches.map((item) => item.instance)
-    ));
-    logAutomationInfo("ticket_trigger_reused_approved_entry_instances", {
-      source,
-      ticket: summarizeTicketForLog(ticket),
-      status_change: statusChange,
-      instance_ids: reusableEntryMatches.map((item) => normalizeText(item.instance && item.instance.id)),
-    });
-    return {
-      processed: true,
-      reason: "reused_approved_entry_instances",
-      created_instances: 0,
-      ticket_id: Number(ticket.id) || 0,
-    };
   }
 
   let actionConfig = await readRuntimeConfig();
@@ -4795,21 +4942,47 @@ async function processTicketApprovalTrigger(options) {
   }
 
   const createdInstances = [];
-  const latestMatchedRule = reusableEntryMatches[0];
-  const nextInstance = latestMatchedRule
-    ? await createApprovalRequestForRule(
-        latestMatchedRule.rule,
+  for (const matchedRule of reusableEntryMatches) {
+    if (matchedRule.instance && matchedRule.instance.state === "approved") {
+      continue;
+    }
+
+    const nextInstance = await createApprovalRequestForRule(
+        matchedRule.rule,
         ticket,
         options && options.domain,
         instances,
         actionConfig,
-        latestMatchedRule.matchContext,
+        matchedRule.matchContext,
         null
       )
-    : null;
-  if (nextInstance) {
-    instances = replaceTicketApprovalInstance(instances, nextInstance);
+    ;
+    if (!nextInstance) {
+      continue;
+    }
+
+    instances = replaceApprovalInstance(instances, nextInstance);
     createdInstances.push(nextInstance);
+  }
+
+  if (!createdInstances.length && approvedReusableMatches.length) {
+    await writeInstances(instances);
+    await addPrivateNote(ticket.id, buildReusableApprovalAppliedNote(
+      statusChange,
+      approvedReusableMatches.map((item) => item.instance)
+    ));
+    logAutomationInfo("ticket_trigger_reused_approved_entry_instances", {
+      source,
+      ticket: summarizeTicketForLog(ticket),
+      status_change: statusChange,
+      instance_ids: approvedReusableMatches.map((item) => normalizeText(item.instance && item.instance.id)),
+    });
+    return {
+      processed: true,
+      reason: "reused_approved_entry_instances",
+      created_instances: 0,
+      ticket_id: Number(ticket.id) || 0,
+    };
   }
 
   if (!createdInstances.length) {

@@ -804,7 +804,7 @@
   <div class="page">
     <section class="shell">
       <h1 class="eyebrow">Approvals Automation Pro</h1>
-      <p class="subcopy">Build approval rules around watched status changes and optional entry conditions. When a rule fires, approval emails go out immediately, and you can choose whether the ticket should auto-close after approval is completed.</p>
+      <p class="subcopy">Create approval rules for ticket status changes, pick approvers, and choose what happens after approval.</p>
 
       <div class="action-bar">
         <div class="inline-actions">
@@ -822,14 +822,14 @@
         <div class="section-head">
           <div>
             <h2 class="section-title">Saved Rules</h2>
-            <p class="panel-subcopy">Approval rules, watched statuses, approvers, delivery settings, and auto-close behavior are all managed here.</p>
+            <p class="panel-subcopy">Manage watched statuses, approvers, email settings, and close behavior.</p>
           </div>
         </div>
 
         <div id="globalError" class="banner banner-error hidden"></div>
         <div id="globalSuccess" class="banner banner-success hidden"></div>
-        <div id="rulesLoading" class="state">Loading approval rules and Freshdesk metadata...</div>
-        <div id="rulesEmpty" class="state hidden">No rules found yet.</div>
+        <div id="rulesLoading" class="state">Loading rules...</div>
+        <div id="rulesEmpty" class="state hidden">No rules yet.</div>
         <div id="rulesList" class="rule-list hidden"></div>
       </div>
 
@@ -837,10 +837,10 @@
         <div class="section-head">
           <div>
             <h2 class="section-title" style="font-size:22px;">Recent Approval Activity</h2>
-            <p class="panel-subcopy">The latest approval requests created when a ticket matched one of your approval rules.</p>
+            <p class="panel-subcopy">Latest approval requests triggered by your rules.</p>
           </div>
         </div>
-        <div id="recentActivityEmpty" class="state hidden">Approval activity will appear here after a ticket matches one of your rules.</div>
+        <div id="recentActivityEmpty" class="state hidden">Approval activity will appear here once a rule runs.</div>
         <div id="recentActivityList" class="activity-list hidden"></div>
       </div>
     </section>
@@ -850,7 +850,7 @@
     <div class="rule-modal-card" role="dialog" aria-modal="true" aria-labelledby="formTitle">
       <div class="rule-modal-header">
         <h3 id="formTitle" class="rule-modal-title">Create Rule</h3>
-        <p id="formCopy" class="rule-modal-copy">Pick the watched statuses, define any early entry conditions, choose approvers, and customize the outgoing email.</p>
+        <p id="formCopy" class="rule-modal-copy">Choose statuses, approvers, and email settings.</p>
       </div>
 
       <div class="rule-modal-body">
@@ -866,7 +866,7 @@
               <div class="field">
                 <label for="ruleNameInput">Rule name</label>
                 <input class="input" id="ruleNameInput" type="text" placeholder="Example: Approval for enterprise cancellations">
-                <div class="helper">Use a name that makes sense in the dashboard and ticket sidebar.</div>
+                <div class="helper">Shown in the dashboard and ticket sidebar.</div>
               </div>
               <div class="field">
                 <label for="ruleActiveInput">Activation</label>
@@ -874,7 +874,7 @@
                   <input id="ruleActiveInput" type="checkbox" checked>
                   <span>Enable this rule immediately</span>
                 </label>
-                <div class="helper">Paused rules stay saved but do not create approval requests.</div>
+                <div class="helper">Turn off to keep the rule saved without running it.</div>
               </div>
             </div>
           </section>
@@ -888,11 +888,10 @@
               <article class="trigger-card">
                 <span class="trigger-tag">Primary Trigger</span>
                 <h4>Status Change</h4>
-                <p class="trigger-copy">This is the most important automation trigger. Approval starts when the ticket status changes into one of the watched statuses below.</p>
+                <p class="trigger-copy">Approval starts when a ticket moves into any selected status.</p>
                 <div class="option-panel-grid" style="margin-top:14px;">
                   <section class="option-panel">
-                    <h5>If status changes into</h5>
-                    <p class="selection-copy">Choose one or many statuses to watch. This trigger always remains active for the rule.</p>
+                    <h5>Watch these statuses</h5>
                     <div id="statusValuesChecklist" class="checkbox-grid"></div>
                   </section>
                 </div>
@@ -901,11 +900,11 @@
               <article class="trigger-card">
                 <span class="trigger-tag">Optional Trigger</span>
                 <h4>Entry Conditions</h4>
-                <p class="trigger-copy">Use this if approval should start earlier, before the ticket reaches one of the watched status changes.</p>
+                <p class="trigger-copy">Add conditions if approval should start before the status change.</p>
                 <div class="logic-panel">
                   <div>
-                    <strong class="logic-title">Condition Matching</strong>
-                    <p class="logic-copy">Choose whether all entry conditions must match or whether any one of them can start approval early.</p>
+                    <strong class="logic-title">Match logic</strong>
+                    <p class="logic-copy">Choose whether all conditions must match or just one.</p>
                   </div>
                   <div class="logic-toggle" role="group" aria-label="Condition matching">
                     <button class="logic-option" id="operatorAndBtn" type="button" data-condition-operator="and">All Must Match</button>
@@ -927,10 +926,9 @@
             </div>
             <div class="approver-builder">
               <div class="field">
-                <label>Choose from Freshdesk agent emails</label>
+                <label>Freshdesk agents</label>
                 <section class="option-panel">
-                  <h5>Freshdesk Agent Approvers</h5>
-                  <p class="selection-copy">Use the same checkbox-card pattern as the dropdown app to choose one or many agent approvers.</p>
+                  <h5>Select agents</h5>
                   <div id="agentApproverChecklist" class="checkbox-grid"></div>
                 </section>
               </div>
@@ -941,7 +939,7 @@
                   <input class="input" id="externalEmailInput" type="email" placeholder="approver@company.com">
                   <button class="btn btn-secondary" id="addExternalEmailBtn" type="button">Add Email</button>
                 </div>
-                <div class="helper">External approvers do not need to exist as Freshdesk agents.</div>
+                <div class="helper">Can be any email address.</div>
               </div>
 
               <div class="field">
@@ -959,13 +957,13 @@
           <section class="form-card">
             <div>
               <span class="card-kicker">Email</span>
-              <h3 class="card-title">Delivery And Message</h3>
+              <h3 class="card-title">Email Settings</h3>
             </div>
             <div class="field-grid">
               <div class="field">
-                <label for="senderEmailSelect">3. Send email from</label>
+                <label for="senderEmailSelect">Send email from</label>
                 <select class="select" id="senderEmailSelect"></select>
-                <div class="helper">This list comes from the Freshdesk support mailboxes registered in the account.</div>
+                <div class="helper">Freshdesk support mailboxes.</div>
               </div>
               <div class="field">
                 <label for="emailSubjectInput">Email subject</label>
@@ -976,27 +974,27 @@
                 <label for="autoCloseAfterApprovalInput">After approval completes</label>
                 <label class="toggle">
                   <input id="autoCloseAfterApprovalInput" type="checkbox">
-                  <span>Automatically close the ticket when this approval is approved</span>
+                  <span>Close the ticket automatically</span>
                 </label>
-                <div class="helper">Leave this off if approval should only unblock the workflow and the ticket status should stay as-is.</div>
+                <div class="helper">Turn off to leave the ticket on its current status.</div>
               </div>
               <div class="field field-wide">
-                <label for="emailBodyInput">4. Approval email message</label>
+                <label for="emailBodyInput">Approval email message</label>
                 <textarea class="textarea" id="emailBodyInput" placeholder="Approval has been requested for ticket {{ticket_id}}.&#10;&#10;Subject: {{ticket_subject}}&#10;Current status: {{ticket_status}}"></textarea>
-                <div class="helper">One-click approve/reject actions are added automatically, and email replies remain as a fallback.</div>
+                <div class="helper">Approve and reject buttons are added automatically.</div>
               </div>
             </div>
           </section>
 
           <section class="preview-card">
             <h3>Rule Preview</h3>
-            <p id="rulePreviewText">Choose watched statuses, define the entry conditions, and the preview will update here.</p>
+            <p id="rulePreviewText">Choose statuses and settings to preview this rule.</p>
           </section>
         </form>
       </div>
 
       <div class="rule-modal-footer">
-        <span class="helper">Approval rules can start from status change or optional entry conditions, and auto-close is now controlled per rule.</span>
+        <span class="helper">Status changes and optional entry conditions can both trigger a rule.</span>
         <div class="modal-footer-actions">
           <button class="btn btn-secondary" id="resetFormBtn" type="button">Clear Form</button>
           <button class="btn btn-secondary" id="cancelEditBtn" type="button">Cancel</button>

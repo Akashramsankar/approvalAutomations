@@ -322,9 +322,12 @@ function renderRuleCard(rule) {
   const extraConditions = Array.isArray(rule.conditions) ? rule.conditions : [];
   const approverEmails = (rule.approvers || []).map((approver) => approver.email).join(", ");
   const triggerSummary = buildTriggerSummary(rule);
+  const ticketActionSummary = rule.auto_close_after_approval !== false
+    ? "Closes the ticket after approval."
+    : "Leaves the ticket status unchanged after approval.";
   const entryConditionSummary = extraConditions.length
     ? extraConditions.map(formatConditionLine).join(rule.condition_operator === "or" ? " OR " : " AND ")
-    : "No optional early trigger. This rule runs from the status change trigger.";
+    : "None";
 
   return `
     <article class="rule-card">
@@ -342,28 +345,24 @@ function renderRuleCard(rule) {
 
       <div class="rule-body">
         <section class="rule-section">
-          <strong>When It Runs</strong>
+          <strong>Trigger</strong>
           <p>${escapeHtml(triggerSummary)}</p>
         </section>
         <section class="rule-section">
           <strong>Ticket Action</strong>
-          <p>${escapeHtml("After the approval is completed, the ticket is closed automatically.")}</p>
+          <p>${escapeHtml(ticketActionSummary)}</p>
         </section>
         <section class="rule-section">
           <strong>Approvers</strong>
           <p>${escapeHtml(approverEmails || "No approvers configured.")}</p>
         </section>
         <section class="rule-section">
-          <strong>Optional Early Trigger</strong>
+          <strong>Entry Conditions</strong>
           <p>${escapeHtml(entryConditionSummary)}</p>
         </section>
         <section class="rule-section">
-          <strong>Email Delivery</strong>
+          <strong>Email</strong>
           <p>${escapeHtml(`${rule.summary.approval_mode_text}. Sent from ${rule.sender_email}.`)}</p>
-        </section>
-        <section class="rule-section">
-          <strong>Coverage</strong>
-          <p>Runs from ticket updates, records approval progress in the sidebar, and auto-closes the ticket after the approval is completed.</p>
         </section>
       </div>
 
@@ -446,8 +445,8 @@ function renderForm() {
 
   document.getElementById("formTitle").textContent = state.form.id ? "Edit Rule" : "Create Rule";
   document.getElementById("formCopy").textContent = state.form.id
-    ? "Update the watched statuses, early-trigger logic, approvers, and outgoing email for this rule."
-    : "Pick the watched statuses, define any early entry conditions, choose approvers, and customize the outgoing email.";
+    ? "Update statuses, approvers, and email settings."
+    : "Choose statuses, approvers, and email settings.";
 
   const messageEl = document.getElementById("formMessage");
   if (state.formMessage.text) {
@@ -503,7 +502,7 @@ function renderStatusOptions() {
 function renderConditionRows() {
   const container = document.getElementById("conditionsContainer");
   if (!state.form.conditions.length) {
-    container.innerHTML = '<div class="state">No early entry trigger yet. This rule will still ask for approval when the ticket changes into one of the watched statuses above.</div>';
+    container.innerHTML = '<div class="state">No entry conditions added. This rule will run from the watched statuses.</div>';
     return;
   }
 
@@ -518,7 +517,7 @@ function renderConditionRows() {
         <div class="condition-header">
           <div>
             <h5>Entry Condition ${index + 1}</h5>
-            <p class="selection-copy">Choose a field and one or more matching values that should start approval before the watched status change happens.</p>
+            <p class="selection-copy">Choose a field and one or more matching values.</p>
           </div>
         </div>
         <div class="condition-row-grid">
@@ -639,18 +638,17 @@ function renderPreview() {
   const watchedStatusText = statusLabels.length ? statusLabels.join(", ") : "None selected";
   const entryConditionText = state.form.conditions.length
     ? state.form.conditions.map(formatConditionLine).join(state.form.conditionOperator === "or" ? " OR " : " AND ")
-    : "None. The watched status change itself will ask for approval.";
+    : "None";
   const preview = [
-    `Rule: ${state.form.name || "Untitled approval rule"}`,
-    `Primary trigger: If status changes into ${watchedStatusText}`,
+    `Name: ${state.form.name || "Untitled approval rule"}`,
     `Watched statuses: ${watchedStatusText}`,
     `Entry conditions: ${entryConditionText}`,
     `Approvers: ${state.form.approvers.length ? state.form.approvers.map((approver) => approver.email).join(", ") : "None selected"}`,
     `Approval mode: ${state.form.anyoneCanApprove ? "Anyone can approve" : "Everyone must approve"}`,
-    `Sender email: ${state.form.senderEmail || "None selected"}`,
-    `After approval completes: ${state.form.autoCloseAfterApproval ? "Ticket closes automatically" : "Leave the ticket status unchanged"}`,
+    `After approval: ${state.form.autoCloseAfterApproval ? "Close the ticket" : "Leave the current status"}`,
+    `From: ${state.form.senderEmail || "None selected"}`,
     "",
-    `Email subject preview: ${renderTemplatePreview(state.form.emailSubject || "Approval required for {{ticket_id}}")}`,
+    `Subject: ${renderTemplatePreview(state.form.emailSubject || "Approval required for {{ticket_id}}")}`,
     "",
     renderTemplatePreview(state.form.emailBody || ""),
   ].join("\n");
@@ -1216,18 +1214,18 @@ function getConditionFieldChoices(currentFieldId) {
 function buildTriggerSummary(rule) {
   const statusText = rule && rule.summary && rule.summary.status_text
     ? rule.summary.status_text
-    : "the selected watched status";
+    : "the selected status";
   const extraConditions = Array.isArray(rule.conditions) ? rule.conditions : [];
   const autoCloseEnabled = rule ? rule.auto_close_after_approval !== false : false;
   const completionText = autoCloseEnabled
-    ? "the ticket closes automatically after approval is completed"
-    : "the ticket stays on its current status after approval is completed";
+    ? "The ticket closes after approval."
+    : "The ticket stays on its current status.";
 
   if (!extraConditions.length) {
-    return `Primary trigger: if status changes into ${statusText}, approval is requested and ${completionText}.`;
+    return `Runs when status changes to ${statusText}. ${completionText}`;
   }
 
-  return `Primary trigger: if status changes into ${statusText}, approval is requested. Optional trigger: matching entry conditions can also start approval earlier, and ${completionText}.`;
+  return `Runs when status changes to ${statusText}. Entry conditions can also start approval earlier. ${completionText}`;
 }
 
 function getAutoCloseSummary(instance) {

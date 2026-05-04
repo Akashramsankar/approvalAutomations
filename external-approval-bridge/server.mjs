@@ -182,7 +182,7 @@ function renderApprovalPage(url) {
   const decision = parseDecision(url.searchParams.get("decision"));
   const toneClass = decision === "approved" ? "btn-primary" : "btn-danger";
   const actionLabel = decision === "approved" ? "Approve" : "Reject";
-  const ticketSubject = normalizeText(url.searchParams.get("ticket_subject")) || "Approval request";
+  const ticketSubject = normalizeText(url.searchParams.get("ticket_subject"));
   const ruleName = normalizeText(url.searchParams.get("rule_name"));
   const approver = normalizeText(url.searchParams.get("approver"));
   const requestId = normalizeText(url.searchParams.get("request_id"));
@@ -210,10 +210,12 @@ function renderApprovalPage(url) {
     body: `
       <h1>${actionLabel} this approval?</h1>
       <p>Confirm your decision below. This updates the original Freshdesk approval request and the sidebar state for the ticket.</p>
-      <div class="meta">
-        <strong>Ticket</strong>
-        <span>${escapeHtml(ticketSubject)}</span>
-      </div>
+      ${ticketSubject ? `
+        <div class="meta">
+          <strong>Ticket</strong>
+          <span>${escapeHtml(ticketSubject)}</span>
+        </div>
+      ` : ""}
       ${ruleName ? `
         <div class="meta">
           <strong>Rule</strong>
