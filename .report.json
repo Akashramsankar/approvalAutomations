@@ -2,77 +2,87 @@
   "lints": [
     {
       "severity": 1,
-      "value": "app/scripts/app.js::32: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
+      "value": "app/scripts/app.js::33: 'client' declared and assigned in different scopes. Possible asynchronous race condition.",
       "type": "custom-js-lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::165: Arrow function has a complexity of 33. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::177: Arrow function has a complexity of 33. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::222: Async function 'loadDashboard' has a complexity of 17. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::234: Async function 'loadDashboard' has a complexity of 17. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::344: Function 'renderRuleCard' has a complexity of 18. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::356: Function 'renderRuleCard' has a complexity of 18. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::468: Function 'renderForm' has a complexity of 11. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::481: Function 'buildTicketActivityUrl' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::663: Function 'renderPreview' has a complexity of 12. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::499: Function 'extractCurrentHostUrl' has a complexity of 14. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::837: Function 'handleRuleAction' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::523: Function 'renderForm' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::878: Async function 'saveRule' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::718: Function 'renderPreview' has a complexity of 12. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1007: Function 'ruleToForm' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::892: Function 'handleRuleAction' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1085: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::933: Async function 'saveRule' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1134: Function 'extractInvokeErrorDetail' has a complexity of 15. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1062: Function 'ruleToForm' has a complexity of 9. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1266: Function 'scrollToFirstFormError' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1140: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1333: Function 'updateStringSelection' has a complexity of 9. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1189: Function 'extractInvokeErrorDetail' has a complexity of 15. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1404: Function 'buildTriggerSummary' has a complexity of 8. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1321: Function 'scrollToFirstFormError' has a complexity of 8. Maximum allowed is 7.",
       "type": "lint"
     },
     {
       "severity": 1,
-      "value": "app/scripts/app.js::1421: Function 'getAutoCloseSummary' has a complexity of 11. Maximum allowed is 7.",
+      "value": "app/scripts/app.js::1388: Function 'updateStringSelection' has a complexity of 9. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "app/scripts/app.js::1459: Function 'buildTriggerSummary' has a complexity of 8. Maximum allowed is 7.",
+      "type": "lint"
+    },
+    {
+      "severity": 1,
+      "value": "app/scripts/app.js::1476: Function 'getAutoCloseSummary' has a complexity of 11. Maximum allowed is 7.",
       "type": "lint"
     },
     {

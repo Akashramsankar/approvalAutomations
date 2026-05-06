@@ -11,6 +11,7 @@ const state = {
   fieldCatalog: {},
   senderEmails: [],
   approverAgentOptions: [],
+  hostUrl: "",
   helper: {
     email_placeholders: [],
   },
@@ -30,6 +31,7 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   try {
     client = await app.initialized();
+    await loadCurrentHostUrl();
     bindStaticEvents();
     client.events.on("app.activated", () => {
       void loadDashboard({ silent: true });
@@ -39,6 +41,16 @@ async function init() {
     console.error("Failed to initialize Approvals Automation Pro dashboard:", error);
     state.globalError = "Unable to initialize the dashboard.";
     render();
+  }
+}
+
+async function loadCurrentHostUrl() {
+  try {
+    const response = await client.data.get("currentHost");
+    state.hostUrl = extractCurrentHostUrl(response);
+  } catch (error) {
+    console.error("Failed to resolve current host URL:", error);
+    state.hostUrl = "";
   }
 }
 
@@ -426,8 +438,9 @@ function renderRecentActivity() {
   listEl.innerHTML = state.recentInstances.slice(0, 8).map((instance) => {
     const stateMeta = getInstanceStateMeta(instance.state);
     const ticketLabel = `#${String(instance.ticket_id)}`;
-    const ticketMarkup = instance.ticket_url
-      ? `<a class="ticket-link" href="${escapeAttribute(instance.ticket_url)}" target="_blank" rel="noreferrer">${escapeHtml(ticketLabel)}</a>`
+    const ticketUrl = buildTicketActivityUrl(instance);
+    const ticketMarkup = ticketUrl
+      ? `<a class="ticket-link" href="${escapeAttribute(ticketUrl)}" target="_blank" rel="noreferrer">${escapeHtml(ticketLabel)}</a>`
       : escapeHtml(ticketLabel);
     return `
       <article class="activity-item">
@@ -463,6 +476,48 @@ function getInstanceStateMeta(value) {
     label: "Pending",
     pillClass: "pill-warning",
   };
+}
+
+function buildTicketActivityUrl(instance) {
+  const directUrl = String((instance && instance.ticket_url) || "").trim();
+  if (directUrl) {
+    return directUrl;
+  }
+
+  const ticketId = Number(instance && instance.ticket_id);
+  if (!ticketId) {
+    return "";
+  }
+
+  if (!state.hostUrl || !/^https?:\/\//i.test(state.hostUrl)) {
+    return "";
+  }
+
+  return `${state.hostUrl.replace(/\/+$/, "")}/a/tickets/${ticketId}`;
+}
+
+function extractCurrentHostUrl(response) {
+  const currentHost = response && response.currentHost ? response.currentHost : response;
+  const endpointUrls = currentHost && typeof currentHost === "object" && currentHost.endpoint_urls
+    ? currentHost.endpoint_urls
+    : {};
+
+  const prioritizedKeys = ["freshdesk", "support_ticket", "support"];
+  for (const key of prioritizedKeys) {
+    const candidate = String(endpointUrls && endpointUrls[key] || "").trim();
+    if (/^https?:\/\//i.test(candidate)) {
+      return candidate;
+    }
+  }
+
+  for (const candidate of Object.values(endpointUrls || {})) {
+    const normalized = String(candidate || "").trim();
+    if (/^https?:\/\//i.test(normalized)) {
+      return normalized;
+    }
+  }
+
+  return "";
 }
 
 function renderForm() {
