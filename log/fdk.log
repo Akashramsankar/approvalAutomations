@@ -48545,3 +48545,284 @@ undefined
 2026-05-05 21:57:23.903 +0530 [info] Upload this file to the marketplace by following the instructions at https://developers.freshworks.com/docs/app-sdk/v3.0/common/app-submission-process/
 2026-05-05 21:57:23.903 +0530 [debug] (file.js) Deleting digest.
 2026-05-05 21:57:23.910 +0530 [debug] (report.js) Generating hash for report.json file
+2026-05-06 10:10:09.644 +0530 [debug] (configs.js) loaded default configs as "{"updates":{"manifest_url":"https://cdn.freshdev.io/assets/fdk/updates.json","changelog_url":"https://cdn.freshdev.io/assets/fdk/change-log.json","period":24},"log":{"level":"info"},"javascript":{"ecma_version":2020},"request":{"timeout":15000},"global_apps":{"enabled":true},"easel":{"enabled":false},"job":{"timeout":120000}}"
+2026-05-06 10:10:09.647 +0530 [debug] (configs.js) loaded global configs as "{"request":{"timeout":15000},"global_apps":{"enabled":"true"},"job":{"timeout":120000}}"
+2026-05-06 10:10:09.647 +0530 [debug] (configs.js) loaded local configs as "{"global_apps":{"enabled":"true"},"request":{"timeout":15000},"job":{"timeout":120000}}"
+2026-05-06 10:10:09.648 +0530 [debug] (configs.js) loaded env configs as "{"updates":{},"log":{},"javascript":{},"request":{"timeout":15000},"job":{"timeout":120000}}"
+2026-05-06 10:10:09.648 +0530 [debug] (configs.js) loaded resolved configs as "{"updates":{"manifest_url":"https://cdn.freshdev.io/assets/fdk/updates.json","changelog_url":"https://cdn.freshdev.io/assets/fdk/change-log.json","period":24},"log":{"level":"info"},"javascript":{"ecma_version":2020},"request":{"timeout":15000},"global_apps":{"enabled":"true"},"easel":{"enabled":false},"job":{"timeout":120000}}"
+2026-05-06 10:10:09.648 +0530 [debug] (logger.js) Starting FDK in node v24.11.1 on darwin
+2026-05-06 10:10:09.648 +0530 [debug] (sequelize.js) setting up sqilite at "/Users/akashram/Desktop/fw Projects/approvalAutomations/.fdk/store.sqlite"
+2026-05-06 10:10:09.648 +0530 [debug] (data.js) Read {"version_details":{"cli":{"deprecated":{"version":"<9","message":"This FDK version has been deprecated. There will be no further feature updates to this version. For a seamless app-building experience, ensure to move to the latest FDK version. For more information, see https://developers.freshworks.com/docs/app-sdk/v2.3/freshdesk/migration-guide/#migrate-to-the-latest-platform-version."},"forced":{"version":"7.0.0","command":"npm install https://dl.freshdev.io/cli/fdk-7.0.0.tgz -g","message":"Your FDK version has been forced updated to v7.0.0, please visit https://community.developers.freshworks.com/t/fdk-v7-0-announcing-node-js-v12-and-es6-support/3606 to know more"},"latest":{"version":"10.1.1","command":"npm install https://cdn.freshdev.io/fdk/latest-v24.tgz -g","message":"You are on the latest FDK version. For information on the features available as part of this FDK version, see https://developers.freshworks.com/docs/?tab=modules."}},"addon":{"version":"2.2.7","url":"https://cdn.freshdev.io/assets/fdk/addons/addon.zip"}},"last_updated":{"time_stamp":1777978955640}}
+2026-05-06 10:10:09.648 +0530 [debug] (updater.js) last check less than 24 hours ago, not looking for updates
+2026-05-06 10:10:09.649 +0530 [debug] (index.js) running with opts {}
+2026-05-06 10:10:09.727 +0530 [debug] (data.js) Read {"version_details":{"cli":{"deprecated":{"version":"<9","message":"This FDK version has been deprecated. There will be no further feature updates to this version. For a seamless app-building experience, ensure to move to the latest FDK version. For more information, see https://developers.freshworks.com/docs/app-sdk/v2.3/freshdesk/migration-guide/#migrate-to-the-latest-platform-version."},"forced":{"version":"7.0.0","command":"npm install https://dl.freshdev.io/cli/fdk-7.0.0.tgz -g","message":"Your FDK version has been forced updated to v7.0.0, please visit https://community.developers.freshworks.com/t/fdk-v7-0-announcing-node-js-v12-and-es6-support/3606 to know more"},"latest":{"version":"10.1.1","command":"npm install https://cdn.freshdev.io/fdk/latest-v24.tgz -g","message":"You are on the latest FDK version. For information on the features available as part of this FDK version, see https://developers.freshworks.com/docs/?tab=modules."}},"addon":{"version":"2.2.7","url":"https://cdn.freshdev.io/assets/fdk/addons/addon.zip"}},"last_updated":{"time_stamp":1777978955640}}
+2026-05-06 10:10:09.729 +0530 [debug] (manifest.js) Reloading manifest with {"platform-version":"3.0","modules":{"common":{"requests":{"verify_freshdesk_credentials":{},"list_admin_ticket_fields":{},"list_admin_fields_all":{},"list_ticket_fields":{},"get_admin_ticket_field":{},"list_groups":{},"list_agents":{},"list_email_mailboxes":{},"list_email_configs":{},"list_tickets":{},"forward_ticket_email":{},"add_ticket_note":{},"update_ticket":{}},"functions":{"getApprovalDashboardData":{},"saveApprovalRule":{},"deleteApprovalRule":{},"syncLiveTicketFieldMetadata":{},"getTicketApprovalData":{},"evaluateTicketApprovalTrigger":{},"submitSidebarApprovalDecision":{}},"events":{"onAppInstall":{"handler":"onAppInstallHandler"},"onExternalEvent":{"handler":"onExternalEventHandler"}},"location":{"full_page_app":{"url":"index.html","icon":"icon.svg"}}},"support_ticket":{"location":{"ticket_background":{"url":"runtime.html","icon":"icon.svg"},"ticket_sidebar":{"url":"sidebar.html","icon":"icon.svg"}},"events":{"onTicketCreate":{"handler":"onTicketCreateHandler"},"onTicketUpdate":{"handler":"onTicketUpdateHandler"},"onConversationCreate":{"handler":"onConversationCreateHandler"}}}},"engines":{"node":"24.11.0","fdk":"10.0.1"},"app":{"tracking_id":"s9hytuyr897n65hk7927","start_time":"2025-06-07T14:05:19.420Z"}}.
+2026-05-06 10:10:09.729 +0530 [debug] (manifest.js) Inferred db,backend as features.
+2026-05-06 10:10:09.729 +0530 [debug] (data.js) Read {"version_details":{"cli":{"deprecated":{"version":"<9","message":"This FDK version has been deprecated. There will be no further feature updates to this version. For a seamless app-building experience, ensure to move to the latest FDK version. For more information, see https://developers.freshworks.com/docs/app-sdk/v2.3/freshdesk/migration-guide/#migrate-to-the-latest-platform-version."},"forced":{"version":"7.0.0","command":"npm install https://dl.freshdev.io/cli/fdk-7.0.0.tgz -g","message":"Your FDK version has been forced updated to v7.0.0, please visit https://community.developers.freshworks.com/t/fdk-v7-0-announcing-node-js-v12-and-es6-support/3606 to know more"},"latest":{"version":"10.1.1","command":"npm install https://cdn.freshdev.io/fdk/latest-v24.tgz -g","message":"You are on the latest FDK version. For information on the features available as part of this FDK version, see https://developers.freshworks.com/docs/?tab=modules."}},"addon":{"version":"2.2.7","url":"https://cdn.freshdev.io/assets/fdk/addons/addon.zip"}},"last_updated":{"time_stamp":1777978955640}}
+2026-05-06 10:10:09.854 +0530 [debug] (coverage.js) INIT: About to merge initial coverage data with 3 files
+2026-05-06 10:10:09.854 +0530 [debug] (coverage.js) INIT: After merge - Files in map: 3
+2026-05-06 10:10:09.867 +0530 [debug] (index.js) Initializing AJV schemas from individual files
+2026-05-06 10:10:09.867 +0530 [debug] (index.js) Compiling schemas...
+2026-05-06 10:10:09.873 +0530 [debug] (index.js) All schemas compiled successfully
+2026-05-06 10:10:10.016 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.020 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.021 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.021 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.022 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.023 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.023 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.028 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.029 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.029 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.035 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.036 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.037 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.037 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.037 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.038 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.039 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.043 +0530 [debug] (index.js) 'schema: ' [object Object]
+2026-05-06 10:10:10.256 +0530 [debug] (pack.js) 'pack' called with {}
+2026-05-06 10:10:10.256 +0530 [debug] (validate.js) asked to skip the following validations, 
+2026-05-06 10:10:10.256 +0530 [debug] (validate.js) running validator actions
+2026-05-06 10:10:10.256 +0530 [debug] (validate.js) running validator requests
+2026-05-06 10:10:10.256 +0530 [debug] (requests.js) validating request template for "verify_freshdesk_credentials"
+2026-05-06 10:10:10.256 +0530 [debug] (validate.js) running validator app-dir
+2026-05-06 10:10:10.257 +0530 [debug] (validate.js) running validator config-dir
+2026-05-06 10:10:10.257 +0530 [debug] (config-dir.js) Checking to see if /Users/akashram/Desktop/fw Projects/approvalAutomations/config/ exists.
+2026-05-06 10:10:10.257 +0530 [debug] (config-dir.js) Fetched the following config files assets,iparams.html,requests.json
+2026-05-06 10:10:10.257 +0530 [debug] (validate.js) running validator custom-objects
+2026-05-06 10:10:10.257 +0530 [debug] (validate.js) running validator event
+2026-05-06 10:10:10.274 +0530 [debug] (event.js) Found ["getApprovalDashboardData","saveApprovalRule","deleteApprovalRule","syncLiveTicketFieldMetadata","getTicketApprovalData","evaluateTicketApprovalTrigger","submitSidebarApprovalDecision","onTicketUpdateHandler","onTicketCreateHandler","onConversationCreateHandler","onAppInstallHandler","onExternalEventHandler"] as exported functions.
+2026-05-06 10:10:10.274 +0530 [debug] (validate.js) running validator iparam
+2026-05-06 10:10:10.280 +0530 [debug] (validate.js) running validator lint
+2026-05-06 10:10:10.280 +0530 [debug] (lint.js) passed fix flag: undefined
+2026-05-06 10:10:10.281 +0530 [debug] (lint.js) Running the following lints on the file app/scripts/app.js : no-eval,no-alert,no-debugger,no-unreachable,no-duplicate-imports,constructor-super,for-direction,no-class-assign,no-new-native-nonconstructor,valid-typeof,no-eq-null,no-var,require-await,no-unreachable-loop,no-redeclare,no-self-assign,no-setter-return,no-shadow-restricted-names,no-this-before-super,no-unsafe-finally,no-unsafe-optional-chaining,no-unused-vars,no-useless-catch,eqeqeq,prefer-const,require-yield,no-global-assign,no-caller,no-process-env,complexity,max-nested-callbacks,handle-callback-err,getter-return,no-async-promise-executor,no-case-declarations,no-compare-neg-zero,no-cond-assign,no-const-assign,no-constant-condition,no-control-regex,no-delete-var,no-dupe-args,no-dupe-class-members,no-dupe-else-if,no-dupe-keys,no-duplicate-case,no-empty,no-empty-character-class,no-empty-pattern,no-ex-assign,no-extra-boolean-cast,no-extra-semi,no-fallthrough,no-func-assign,no-import-assign,no-inner-declarations,no-invalid-regexp,no-irregular-whitespace,no-loss-of-precision,no-misleading-character-class,no-mixed-spaces-and-tabs,no-nonoctal-decimal-escape,no-obj-calls,no-octal,no-prototype-builtins,no-regex-spaces,no-sparse-arrays,no-unexpected-multiline,no-unsafe-negation,no-unused-labels,no-useless-backreference,no-useless-escape,no-with,use-isnan,no-unpkg-cdn,no-proxy-requests,no-unhandled-promise,no-logging-rejections,no-non-client-request-model,no-deprecated-apis,no-cross-scope-assign,no-empty-function
+2026-05-06 10:10:10.374 +0530 [debug] (lint.js) Running the following lints on the file app/scripts/runtime.js : no-eval,no-alert,no-debugger,no-unreachable,no-duplicate-imports,constructor-super,for-direction,no-class-assign,no-new-native-nonconstructor,valid-typeof,no-eq-null,no-var,require-await,no-unreachable-loop,no-redeclare,no-self-assign,no-setter-return,no-shadow-restricted-names,no-this-before-super,no-unsafe-finally,no-unsafe-optional-chaining,no-unused-vars,no-useless-catch,eqeqeq,prefer-const,require-yield,no-global-assign,no-caller,no-process-env,complexity,max-nested-callbacks,handle-callback-err,getter-return,no-async-promise-executor,no-case-declarations,no-compare-neg-zero,no-cond-assign,no-const-assign,no-constant-condition,no-control-regex,no-delete-var,no-dupe-args,no-dupe-class-members,no-dupe-else-if,no-dupe-keys,no-duplicate-case,no-empty,no-empty-character-class,no-empty-pattern,no-ex-assign,no-extra-boolean-cast,no-extra-semi,no-fallthrough,no-func-assign,no-import-assign,no-inner-declarations,no-invalid-regexp,no-irregular-whitespace,no-loss-of-precision,no-misleading-character-class,no-mixed-spaces-and-tabs,no-nonoctal-decimal-escape,no-obj-calls,no-octal,no-prototype-builtins,no-regex-spaces,no-sparse-arrays,no-unexpected-multiline,no-unsafe-negation,no-unused-labels,no-useless-backreference,no-useless-escape,no-with,use-isnan,no-unpkg-cdn,no-proxy-requests,no-unhandled-promise,no-logging-rejections,no-non-client-request-model,no-deprecated-apis,no-cross-scope-assign,no-empty-function
+2026-05-06 10:10:10.385 +0530 [debug] (lint.js) Running the following lints on the file app/scripts/sidebar.js : no-eval,no-alert,no-debugger,no-unreachable,no-duplicate-imports,constructor-super,for-direction,no-class-assign,no-new-native-nonconstructor,valid-typeof,no-eq-null,no-var,require-await,no-unreachable-loop,no-redeclare,no-self-assign,no-setter-return,no-shadow-restricted-names,no-this-before-super,no-unsafe-finally,no-unsafe-optional-chaining,no-unused-vars,no-useless-catch,eqeqeq,prefer-const,require-yield,no-global-assign,no-caller,no-process-env,complexity,max-nested-callbacks,handle-callback-err,getter-return,no-async-promise-executor,no-case-declarations,no-compare-neg-zero,no-cond-assign,no-const-assign,no-constant-condition,no-control-regex,no-delete-var,no-dupe-args,no-dupe-class-members,no-dupe-else-if,no-dupe-keys,no-duplicate-case,no-empty,no-empty-character-class,no-empty-pattern,no-ex-assign,no-extra-boolean-cast,no-extra-semi,no-fallthrough,no-func-assign,no-import-assign,no-inner-declarations,no-invalid-regexp,no-irregular-whitespace,no-loss-of-precision,no-misleading-character-class,no-mixed-spaces-and-tabs,no-nonoctal-decimal-escape,no-obj-calls,no-octal,no-prototype-builtins,no-regex-spaces,no-sparse-arrays,no-unexpected-multiline,no-unsafe-negation,no-unused-labels,no-useless-backreference,no-useless-escape,no-with,use-isnan,no-unpkg-cdn,no-proxy-requests,no-unhandled-promise,no-logging-rejections,no-non-client-request-model,no-deprecated-apis,no-cross-scope-assign,no-empty-function
+2026-05-06 10:10:10.413 +0530 [debug] (lint.js) Running the following lints on the file server/server.js : no-eval,no-alert,no-debugger,no-unreachable,no-duplicate-imports,constructor-super,for-direction,no-class-assign,no-new-native-nonconstructor,valid-typeof,no-eq-null,no-var,require-await,no-unreachable-loop,no-redeclare,no-self-assign,no-setter-return,no-shadow-restricted-names,no-this-before-super,no-unsafe-finally,no-unsafe-optional-chaining,no-unused-vars,no-useless-catch,eqeqeq,prefer-const,require-yield,no-global-assign,no-caller,no-process-env,complexity,max-nested-callbacks,handle-callback-err,getter-return,no-async-promise-executor,no-case-declarations,no-compare-neg-zero,no-cond-assign,no-const-assign,no-constant-condition,no-control-regex,no-delete-var,no-dupe-args,no-dupe-class-members,no-dupe-else-if,no-dupe-keys,no-duplicate-case,no-empty,no-empty-character-class,no-empty-pattern,no-ex-assign,no-extra-boolean-cast,no-extra-semi,no-fallthrough,no-func-assign,no-import-assign,no-inner-declarations,no-invalid-regexp,no-irregular-whitespace,no-loss-of-precision,no-misleading-character-class,no-mixed-spaces-and-tabs,no-nonoctal-decimal-escape,no-obj-calls,no-octal,no-prototype-builtins,no-regex-spaces,no-sparse-arrays,no-unexpected-multiline,no-unsafe-negation,no-unused-labels,no-useless-backreference,no-useless-escape,no-with,use-isnan,no-unpkg-cdn,no-proxy-requests,no-unhandled-promise,no-logging-rejections,no-non-client-request-model,no-deprecated-apis,no-dependency-mismatch,no-empty-function
+2026-05-06 10:10:10.504 +0530 [debug] (lint.js) Running the following lints on the file config/assets/iparams.js : no-unpkg-cdn,no-proxy-requests,no-logging-rejections
+2026-05-06 10:10:10.514 +0530 [debug] (validate.js) running validator manifest
+2026-05-06 10:10:10.514 +0530 [debug] (validate.js) running validator manifest-dependency
+2026-05-06 10:10:10.514 +0530 [debug] (validate.js) running validator oauth
+2026-05-06 10:10:10.514 +0530 [debug] (validate.js) skipping validator pkgsize
+2026-05-06 10:10:10.514 +0530 [debug] (validate.js) skipping validator schema
+2026-05-06 10:10:10.514 +0530 [debug] (validate.js) running validator version-check
+2026-05-06 10:10:10.514 +0530 [debug] (validate.js) running validator app-settings
+2026-05-06 10:10:10.522 +0530 [debug] (event.js) Found ["getApprovalDashboardData","saveApprovalRule","deleteApprovalRule","syncLiveTicketFieldMetadata","getTicketApprovalData","evaluateTicketApprovalTrigger","submitSidebarApprovalDecision","onTicketUpdateHandler","onTicketCreateHandler","onConversationCreateHandler","onAppInstallHandler","onExternalEventHandler"] as exported functions.
+2026-05-06 10:10:10.522 +0530 [debug] (manifest.js) Validating function getApprovalDashboardData
+2026-05-06 10:10:10.523 +0530 [debug] (http.js) Failed to parse URL: https://<%= context.domain %>, error: Invalid URL
+2026-05-06 10:10:10.523 +0530 [debug] (manifest.js) Validating function saveApprovalRule
+2026-05-06 10:10:10.523 +0530 [debug] (requests.js) validating request template for "list_admin_ticket_fields"
+2026-05-06 10:10:10.523 +0530 [debug] (manifest.js) Validating function deleteApprovalRule
+2026-05-06 10:10:10.523 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.523 +0530 [debug] (manifest.js) Validating function syncLiveTicketFieldMetadata
+2026-05-06 10:10:10.523 +0530 [debug] (requests.js) validating request template for "list_admin_fields_all"
+2026-05-06 10:10:10.523 +0530 [debug] (manifest.js) Validating function getTicketApprovalData
+2026-05-06 10:10:10.523 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.523 +0530 [debug] (manifest.js) Validating function evaluateTicketApprovalTrigger
+2026-05-06 10:10:10.523 +0530 [debug] (requests.js) validating request template for "list_ticket_fields"
+2026-05-06 10:10:10.523 +0530 [debug] (manifest.js) Validating function submitSidebarApprovalDecision
+2026-05-06 10:10:10.523 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.523 +0530 [debug] (requests.js) validating request template for "get_admin_ticket_field"
+2026-05-06 10:10:10.524 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "list_groups"
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= context.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "list_agents"
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "list_email_mailboxes"
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "list_email_configs"
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "list_tickets"
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "forward_ticket_email"
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "add_ticket_note"
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (requests.js) validating request template for "update_ticket"
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.525 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.525 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.526 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.526 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.526 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.526 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.526 +0530 [debug] (http.js) Failed to parse URL: https://<%= iparam.domain %>, error: Invalid URL
+2026-05-06 10:10:10.526 +0530 [debug] (request.js) Checking request template for multi-oauth app
+2026-05-06 10:10:10.527 +0530 [warn] Please ensure that the following are addressed for quick review process:
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::33: 'client' declared and assigned in different scopes. Possible asynchronous race condition.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::177: Arrow function has a complexity of 33. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::234: Async function 'loadDashboard' has a complexity of 17. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::356: Function 'renderRuleCard' has a complexity of 18. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::481: Function 'buildTicketActivityUrl' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::499: Function 'extractCurrentHostUrl' has a complexity of 14. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::523: Function 'renderForm' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::718: Function 'renderPreview' has a complexity of 12. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::892: Function 'handleRuleAction' has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::933: Async function 'saveRule' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::1062: Function 'ruleToForm' has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::1140: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::1189: Function 'extractInvokeErrorDetail' has a complexity of 15. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::1321: Function 'scrollToFirstFormError' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::1388: Function 'updateStringSelection' has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::1459: Function 'buildTriggerSummary' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.527 +0530 [warn] [33m⚠[39m app/scripts/app.js::1476: Function 'getAutoCloseSummary' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/runtime.js::13: 'client' declared and assigned in different scopes. Possible asynchronous race condition.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/runtime.js::46: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/runtime.js::93: Arrow function has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/runtime.js::224: Async function 'syncLiveFieldMetadata' has a complexity of 12. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/runtime.js::268: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::45: 'client' declared and assigned in different scopes. Possible asynchronous race condition.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::54: 'refreshIntervalId' declared and assigned in different scopes. Possible asynchronous race condition.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::107: Async function 'loadSidebar' has a complexity of 21. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::255: Function 'formatApproverLine' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::289: Arrow function has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::306: Function 'getApprovalProgressMetrics' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::325: Function 'renderApprovalProgress' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::424: Async function 'startPostUpdateProbe' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::472: 'ticket' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::513: Function 'extractLoggedInAgent' has a complexity of 13. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::575: Async function 'handleSummaryActionClick' has a complexity of 13. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::673: Function 'collectOptionRecords' has a complexity of 25. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::720: Arrow function has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::852: Async function 'syncLiveTicketFieldMetadata' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::899: Function 'buildCreateFallbackChanges' has a complexity of 14. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::965: Function 'normalizeTicketEventValue' has a complexity of 16. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m app/scripts/sidebar.js::1003: Function 'parseInvokeResponse' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::201: Function 'resolveAgentFacingLabel' has a complexity of 15. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::293: Function 'decodeLegacyBase64UrlToken' has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::335: Function 'decodeApprovalActionToken' has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::366: Function 'buildErrorMessage' has a complexity of 19. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::424: Function 'writeAutomationLog' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::473: Async function 'invokeRequestTemplate' has a complexity of 13. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::527: Function 'maybeAddOption' has a complexity of 19. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::554: Function 'collectChoiceOptions' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::585: Arrow function has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::645: Function 'collectChoiceLabels' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::673: Arrow function has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::707: Function 'resolveReadableOptionLabel' has a complexity of 14. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::744: Function 'resolveCanonicalOptionValue' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::808: Arrow function has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::937: Function 'isDropdownLikeField' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::1016: Function 'shouldExposeAsTriggerField' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::1126: Arrow function has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::1155: Function 'createLiveMetadataField' has a complexity of 17. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::1190: Arrow function has a complexity of 12. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::1354: Function 'isCustomOrChoiceFieldCandidate' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.528 +0530 [warn] [33m⚠[39m server/server.js::1477: Arrow function has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::1581: possible deprecated API usage detected
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::1631: Async function 'fetchSupportData' has a complexity of 25. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::1917: Function 'shouldRetryPendingApprovalEmail' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2022: Async function 'initializeApprovalRuntimeConfig' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2105: Arrow function has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2144: Function 'sanitizeRulePayload' has a complexity of 35. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2353: Function 'buildRuleSummary' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2450: Function 'buildSyntheticCreateChanges' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2509: Function 'getTicketChangeValue' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2554: Function 'parseFieldChange' has a complexity of 15. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2623: Arrow function has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2752: Function 'buildStatusGateNote' has a complexity of 17. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2903: Function 'createApprovalInstance' has a complexity of 16. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::2979: Function 'buildPendingApproverFromRule' has a complexity of 23. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3008: Arrow function has a complexity of 34. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3024: Function 'syncPendingInstanceWithRule' has a complexity of 26. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3110: Async function 'syncPendingApprovalInstancesForRule' has a complexity of 15. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3257: Function 'buildApprovalBridgeLink' has a complexity of 16. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3331: Function 'buildEmailContent' has a complexity of 37. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3550: Function 'resolveClosedStatusOption' has a complexity of 11. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3581: Arrow function has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3593: Function 'buildApprovalCompletionAutoCloseNote' has a complexity of 13. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3626: Async function 'maybeAutoCloseApprovedInstance' has a complexity of 26. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3765: Function 'shouldRetryApprovalEmailWithoutSender' has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::3785: Async function 'sendApprovalEmail' has a complexity of 41. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4205: Async function 'syncGateAfterApprovalUpdate' has a complexity of 10. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4235: Async function 'createApprovalRequestForRule' has a complexity of 42. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4236: Arrow function has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4415: Async function 'triggerApprovalBackfillForNewRule' has a complexity of 12. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4489: Async function 'handleApprovalConversation' has a complexity of 9. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4504: 'instances' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4504: 'gates' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4532: Async function 'handleApprovalReplyTicket' has a complexity of 18. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4555: 'instances' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4555: 'gates' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4598: Function 'parseExternalEventData' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4634: Function 'findPendingApprovalAction' has a complexity of 18. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4689: Async function 'handleApprovalActionEvent' has a complexity of 23. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4700: 'instances' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4700: 'gates' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4766: Async function 'recordSidebarApprovalDecision' has a complexity of 18. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4789: 'instances' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4789: 'gates' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4858: Async function 'processTicketApprovalTrigger' has a complexity of 52. Maximum allowed is 7.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::4953: 'gates' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::5061: 'gates' is never reassigned. Use 'const' instead.
+2026-05-06 10:10:10.541 +0530 [warn] [33m⚠[39m server/server.js::5222: Async method 'getApprovalDashboardData' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.542 +0530 [warn] [33m⚠[39m server/server.js::5279: Async method 'saveApprovalRule' has a complexity of 17. Maximum allowed is 7.
+2026-05-06 10:10:10.542 +0530 [warn] [33m⚠[39m server/server.js::5376: Async method 'deleteApprovalRule' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.542 +0530 [warn] [33m⚠[39m server/server.js::5463: Async method 'getTicketApprovalData' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.542 +0530 [warn] [33m⚠[39m server/server.js::5501: Async method 'evaluateTicketApprovalTrigger' has a complexity of 24. Maximum allowed is 7.
+2026-05-06 10:10:10.542 +0530 [warn] [33m⚠[39m server/server.js::5583: Async method 'onTicketCreateHandler' has a complexity of 8. Maximum allowed is 7.
+2026-05-06 10:10:10.542 +0530 [warn] 
+[1mYour app might be using one or more API endpoints that will be deprecated soon. Please go through the deprecation notice (https://community.freshworks.dev/t/freshservice-rest-api-v1-deprecation-notice/5899) to find alternate resources.[0m
+2026-05-06 10:10:10.542 +0530 [warn] 
+2026-05-06 10:10:10.542 +0530 [info] App being packed in Node v24.11.1 using FDK 10.0.1
+2026-05-06 10:10:10.542 +0530 [debug] (report.js) Generating hash for report.json file
+2026-05-06 10:10:10.542 +0530 [debug] (data.js) Read {"report_hash":"fca69a3852634384c3df8ea958bad692f3e8f11efe41ca0ed2589025523d0d4d","try_ag_101_101_migrate_oauth_status":true,"try_ag_101_101_modules":{"try_ag_101_101_system_settings":{"currentHost":{"endpoint_urls":{"freshdesk":"https://driveautomation-support.freshdesk.com"},"subscribed_modules":["support_ticket"]}},"try_ag_101_101_custom_iparams":{"domain":"driveautomation-help.freshdesk.com","api_key":"ZGlPajRKTkFqUHl5U3dUejVjeXQ6WA==","exception_statuses":["resolved","waiting_on_customer","waiting_on_third_party"]}},"try_ag_101_101_schedule_onScheduledEvent_modules":{"name":"onScheduledEvent","data":{"ticket_id":1,"subject":"Email address change","scheduled_time":1751717760000,"current_status":"6","assigned_to":{"id":null,"name":"Unassigned"},"created_by":{"id":1130000122217,"name":"Test Test"},"created_at":1751717337298},"schedule_at":"2025-07-05T12:16:00.000Z"},"try_ag_101_101_schedule_reopen_schedule_1_modules":{"name":"reopen_schedule_1","data":{"ticket_id":1,"subject":"Email address change","scheduled_time":1752048000000,"current_status":"2","created_by":{"id":1130000122217,"name":"Falcon Saas"}},"schedule_at":"2025-07-09T08:00:00.000Z","event":"onScheduledEvent"},"try-again:reopen_schedule_1_modules":{"ticket_id":1,"subject":"Email address change","scheduled_time":1752048000000,"current_status":"2","assigned_to":{"id":null,"name":"Unassigned"},"created_by":{"id":1130000122217,"name":"Falcon Saas"},"created_at":1752047511210,"createdAt":1752047511266,"updatedAt":1752047511266,"clientProduct":"freshdesk"},"try-again:reopen_schedule_keys_modules":{"0":"reopen_schedule_1","createdAt":1752047541785,"updatedAt":1752047541785,"clientProduct":"freshdesk"},"schedu_101_101_migrate_oauth_status":true}
+2026-05-06 10:10:10.542 +0530 [debug] (report.js) Comparing the stored hash with report.json file hash
+2026-05-06 10:10:10.543 +0530 [debug] (pack.js) Cannot find './visitor-app' directory while packing.
+2026-05-06 10:10:10.543 +0530 [debug] (pack.js) Cannot find './src' directory while packing.
+2026-05-06 10:10:10.544 +0530 [debug] (file.js) Computing digest for app/icon.svg,app/index.html,app/runtime.html,app/scripts/app.js,app/scripts/runtime.js,app/scripts/sidebar.js,app/sidebar.html,manifest.json.
+2026-05-06 10:10:10.545 +0530 [debug] (pack.js) Packing ./app/icon.svg
+2026-05-06 10:10:10.545 +0530 [debug] (pack.js) Packing ./app/index.html
+2026-05-06 10:10:10.547 +0530 [debug] (pack.js) Packing ./app/runtime.html
+2026-05-06 10:10:10.547 +0530 [debug] (pack.js) Packing ./app/scripts/app.js
+2026-05-06 10:10:10.552 +0530 [debug] (pack.js) Packing ./app/scripts/runtime.js
+2026-05-06 10:10:10.552 +0530 [debug] (pack.js) Packing ./app/scripts/sidebar.js
+2026-05-06 10:10:10.554 +0530 [debug] (pack.js) Packing ./app/sidebar.html
+2026-05-06 10:10:10.555 +0530 [debug] (pack.js) Packing ./server/server.js
+2026-05-06 10:10:10.561 +0530 [debug] (pack.js) Packing ./config/assets/iparams.js
+2026-05-06 10:10:10.562 +0530 [debug] (pack.js) Packing ./config/iparams.html
+2026-05-06 10:10:10.562 +0530 [debug] (pack.js) Packing ./config/requests.json
+2026-05-06 10:10:10.562 +0530 [debug] (pack.js) Packing ./manifest.json
+2026-05-06 10:10:10.562 +0530 [debug] (pack.js) Packing ./.report.json
+2026-05-06 10:10:10.562 +0530 [debug] (pack.js) Packing ./.meta.json
+2026-05-06 10:10:10.562 +0530 [debug] (pack.js) Packing ./digest.md5
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) asked to skip the following validations, 
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator actions
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator requests
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator app-dir
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator config-dir
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator custom-objects
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator event
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator iparam
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator lint
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator manifest
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator manifest-dependency
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator oauth
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) running validator pkgsize
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator schema
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator version-check
+2026-05-06 10:10:10.574 +0530 [debug] (validate.js) skipping validator app-settings
+2026-05-06 10:10:10.574 +0530 [info] App packed successfully at /dist/approvalAutomations.zip
+2026-05-06 10:10:10.574 +0530 [info] Upload this file to the marketplace by following the instructions at https://developers.freshworks.com/docs/app-sdk/v3.0/common/app-submission-process/
+2026-05-06 10:10:10.574 +0530 [debug] (file.js) Deleting digest.
+2026-05-06 10:10:10.582 +0530 [debug] (report.js) Generating hash for report.json file
