@@ -79,6 +79,8 @@ const BUILT_IN_TRIGGER_FIELD_IDS = new Set([
 ]);
 const CUSTOM_FIELD_DEBUG_SAMPLE_LIMIT = 25;
 
+const { APP_SLUG, APP_VERSION } = require("./app_metadata");
+
 function parseArgs(args) {
   if (!args) {
     return {};
@@ -5218,6 +5220,79 @@ async function processTicketApprovalTrigger(options) {
   };
 }
 
+// ── Installation capture ───────────────────────────────────────────────────────
+
+function normalizeInstallTimestamp(timestamp) {
+  if (!timestamp) {
+    return new Date().toISOString();
+  }
+
+  const numericTimestamp = Number(timestamp);
+  const timestampMs = numericTimestamp < 10000000000 ? numericTimestamp * 1000 : numericTimestamp;
+  return new Date(timestampMs).toISOString();
+}
+
+function getFreshdeskDomain(payload, iparams) {
+  if (iparams.domain) {
+    return iparams.domain;
+  }
+
+  if (payload.domain) {
+    return payload.domain;
+  }
+
+  return payload.currentHost &&
+    payload.currentHost.endpoint_urls &&
+    payload.currentHost.endpoint_urls.freshdesk;
+}
+
+function nullable(value) {
+  return value ? value : null;
+}
+
+function buildInstallationCapturePayload(payload, fallbackEvent) {
+  const iparams = payload.iparams || {};
+  const installedAt = normalizeInstallTimestamp(payload.timestamp);
+  const marketingConsent = Boolean(iparams.marketing_consent);
+
+  return {
+    app_slug: APP_SLUG,
+    app_version: APP_VERSION,
+    event: payload.event || fallbackEvent,
+    account_id: nullable(payload.account_id),
+    freshdesk_domain: nullable(getFreshdeskDomain(payload, iparams)),
+    region: nullable(payload.region),
+    installed_at: installedAt,
+    installer_name: nullable(iparams.installer_name),
+    installer_email: nullable(iparams.installer_email),
+    marketing_consent: marketingConsent,
+    consent_timestamp: marketingConsent ? iparams.consent_timestamp || installedAt : null,
+    current_host: nullable(payload.currentHost),
+  };
+}
+
+async function captureInstallation(payload, fallbackEvent) {
+  const body = buildInstallationCapturePayload(payload || {}, fallbackEvent);
+  await $request.invokeTemplate("capture_installation", {
+    context: {},
+    body: JSON.stringify(body),
+  });
+}
+
+// Secure settings may be omitted from the payload when unchanged, so only
+// reject the secret when it is present but blank.
+function validateInstallCaptureSecret(args) {
+  const settings = args && args.app_settings ? args.app_settings : args || {};
+  if (!Object.prototype.hasOwnProperty.call(settings, "install_capture_secret")) {
+    return;
+  }
+
+  const secret = settings.install_capture_secret;
+  if (typeof secret !== "string" || secret.trim().length === 0) {
+    throw new Error("Installation capture secret is required.");
+  }
+}
+
 exports = {
   getApprovalDashboardData: async function () {
     try {
@@ -5611,7 +5686,14 @@ exports = {
     }
   },
 
-  onAppInstallHandler: async function () {
+  onAppInstallHandler: async function (payload) {
+    try {
+      await captureInstallation(payload, "onAppInstall");
+      console.log("Installation contact captured.");
+    } catch (error) {
+      console.error("Installation contact capture failed:", error);
+    }
+
     try {
       await initializeApprovalRuntimeConfig(true);
       renderData();
@@ -5619,6 +5701,29 @@ exports = {
       console.error("onAppInstallHandler failed:", buildErrorMessage(error, "App install setup failed."));
       renderData({
         message: "Unable to initialize approval email actions during installation.",
+      });
+    }
+  },
+
+  afterAppUpdateHandler: async function (payload) {
+    try {
+      await captureInstallation(payload, "afterAppUpdate");
+      console.log("Updated installation contact captured.");
+    } catch (error) {
+      console.error("Updated installation contact capture failed:", error);
+    }
+
+    renderData();
+  },
+
+  onSettingsUpdate: function (args) {
+    try {
+      validateInstallCaptureSecret(args);
+      renderData();
+    } catch (error) {
+      renderData({
+        message: "Invalid app settings.",
+        detail: buildErrorMessage(error, "Invalid app settings."),
       });
     }
   },

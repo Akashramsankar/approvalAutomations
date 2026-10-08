@@ -1,0 +1,20 @@
+{
+  "event": "onAppInstall",
+  "account_id": "123456",
+  "region": "US",
+  "timestamp": 1789126040000,
+  "currentHost": {
+    "endpoint_urls": {
+      "freshdesk": "falcons0806.freshdesk.com"
+    },
+    "subscribed_modules": [
+      "support_ticket"
+    ]
+  },
+  "iparams": {
+    "domain": "falcons0806.freshdesk.com",
+    "installer_name": "Jane Smith",
+    "installer_email": "jane@example.com",
+    "marketing_consent": false
+  }
+}

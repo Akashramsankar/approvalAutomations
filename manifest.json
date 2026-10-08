@@ -15,7 +15,8 @@
         "list_tickets": {},
         "forward_ticket_email": {},
         "add_ticket_note": {},
-        "update_ticket": {}
+        "update_ticket": {},
+        "capture_installation": {}
       },
       "functions": {
         "getApprovalDashboardData": {},
@@ -29,6 +30,9 @@
       "events": {
         "onAppInstall": {
           "handler": "onAppInstallHandler"
+        },
+        "afterAppUpdate": {
+          "handler": "afterAppUpdateHandler"
         },
         "onExternalEvent": {
           "handler": "onExternalEventHandler"
@@ -67,10 +71,13 @@
   },
   "engines": {
     "node": "24.11.0",
-    "fdk": "10.0.1"
+    "fdk": "10.1.9"
   },
   "app": {
     "tracking_id": "s9hytuyr897n65hk7927",
     "start_time": "2025-06-07T14:05:19.420Z"
+  },
+  "scripts": {
+    "fdk-unit-test": "vitest run --coverage"
   }
 }

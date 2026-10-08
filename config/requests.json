@@ -10,6 +10,17 @@
       }
     }
   },
+  "capture_installation": {
+    "schema": {
+      "method": "POST",
+      "host": "api.falconsaas.online",
+      "path": "/freshdesk/reopen-ticket/installations",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-Falcon-Install-Secret": "<%= app_settings.install_capture_secret %>"
+      }
+    }
+  },
   "list_admin_ticket_fields": {
     "schema": {
       "method": "GET",
