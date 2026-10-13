@@ -386,17 +386,17 @@ function renderApproverRow(instance, approver) {
   const canAct = canLoggedInAgentAct(instance, approver, state.loggedInAgent);
 
   return `
-    <div class="approver-row">
-      <div class="approver-main">
-        <span class="status-dot ${statusMeta.dotClass}"></span>
-        <div class="approver-copy">
-          <div class="approver-line" title="${escapeHtml(approverLine)}">${escapeHtml(approverLine)}</div>
+    <div class="approver-row${canAct ? " approver-row-actionable" : ""}">
+      <div class="approver-summary">
+        <div class="approver-main">
+          <span class="status-dot ${statusMeta.dotClass}"></span>
+          <div class="approver-copy">
+            <div class="approver-line" title="${escapeHtml(approverLine)}">${escapeHtml(approverLine)}</div>
+          </div>
         </div>
-      </div>
-      <div class="approver-actions">
         <span class="row-pill ${statusMeta.pillClass}">${escapeHtml(statusMeta.label)}</span>
-        ${canAct ? renderActionButtons(instance, approver) : ""}
       </div>
+      ${canAct ? `<div class="approver-actions">${renderActionButtons(instance, approver)}</div>` : ""}
     </div>
   `;
 }
@@ -513,10 +513,25 @@ function buildSyntheticChangesPayload() {
 function extractLoggedInAgent(result) {
   const rawUser = result && result.loggedInUser ? result.loggedInUser : result;
   const contact = rawUser && rawUser.contact && typeof rawUser.contact === "object" ? rawUser.contact : {};
+  const nestedUser = rawUser && rawUser.user && typeof rawUser.user === "object" ? rawUser.user : {};
+  const nestedContact = nestedUser && nestedUser.contact && typeof nestedUser.contact === "object"
+    ? nestedUser.contact
+    : {};
   return {
-    id: Number(rawUser && rawUser.id) || 0,
-    email: normalizeEmail(contact.email || rawUser && rawUser.email),
-    name: String(contact.name || rawUser && rawUser.name || "").trim(),
+    id: Number(rawUser && rawUser.id || nestedUser && nestedUser.id) || 0,
+    email: normalizeEmail(
+      contact.email ||
+      rawUser && rawUser.email ||
+      nestedContact.email ||
+      nestedUser && nestedUser.email
+    ),
+    name: String(
+      contact.name ||
+      rawUser && rawUser.name ||
+      nestedContact.name ||
+      nestedUser && nestedUser.name ||
+      ""
+    ).trim(),
   };
 }
 
@@ -525,13 +540,20 @@ function normalizeEmail(value) {
 }
 
 function canLoggedInAgentAct(instance, approver, agent) {
+  const approverAgentId = Number(approver && approver.agent_id) || 0;
+  const loggedInAgentId = Number(agent && agent.id) || 0;
+  const idsMatch = Boolean(approverAgentId && loggedInAgentId && approverAgentId === loggedInAgentId);
+  const emailsMatch = Boolean(
+    normalizeEmail(approver && approver.email) &&
+    normalizeEmail(approver && approver.email) === normalizeEmail(agent && agent.email)
+  );
+
   return Boolean(
     instance &&
     approver &&
     instance.state === "pending" &&
     approver.status === "pending" &&
-    normalizeEmail(approver.email) &&
-    normalizeEmail(approver.email) === normalizeEmail(agent && agent.email)
+    (idsMatch || emailsMatch)
   );
 }
 

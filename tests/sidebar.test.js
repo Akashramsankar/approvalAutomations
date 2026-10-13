@@ -55,6 +55,24 @@ describe("ticket sidebar helpers", () => {
     expect(sidebar.getApproverStateMeta("pending")).toEqual(expect.objectContaining({ label: "Awaiting Reply" }));
   });
 
+  test("extracts nested identities and authorizes matching agent ids", () => {
+    const agent = sidebar.extractLoggedInAgent({
+      loggedInUser: {
+        user: {
+          id: 112,
+          email: "alternate@example.com",
+          name: "Approver",
+        },
+      },
+    });
+    expect(agent).toEqual({ id: 112, email: "alternate@example.com", name: "Approver" });
+    expect(sidebar.canLoggedInAgentAct(
+      approvalInstance,
+      { ...approvalInstance.approvers[0], agent_id: 112 },
+      { id: 112, email: "changed@example.com" }
+    )).toBe(true);
+  });
+
   test("computes approval progress", () => {
     expect(sidebar.getApprovalProgressMetrics({
       approvers: [{ status: "approved" }, { status: "pending" }],
@@ -82,6 +100,7 @@ describe("ticket sidebar helpers", () => {
 
     const button = document.querySelector("[data-approval-action='approved']");
     expect(button).not.toBeNull();
+    expect(button.closest(".approver-actions")).not.toBeNull();
     await sidebar.handleSummaryActionClick({ target: button });
 
     const client = await globalThis.app.initialized.mock.results[0].value;

@@ -235,8 +235,9 @@
 
       <div class="field-row">
         <fw-input required="true" label="API Key" icon-right="key" placeholder="Freshdesk API Key"
-          minlength="5" size="30" class="secure-field" id="apiKey" type="password"></fw-input>
-        <div class="helper-text">Use an API key with enough access to read admin ticket fields and send approval mails and notes.</div>
+          minlength="5" size="30" class="secure-field" id="apiKey" type="password"
+          autocomplete="new-password"></fw-input>
+        <div class="helper-text">Use an API key with enough access to read admin ticket fields and send approval mails and notes. Saved keys are never loaded into this field; enter a value only to replace the existing key.</div>
       </div>
 
       <div class="field-row">

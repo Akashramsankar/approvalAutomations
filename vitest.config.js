@@ -4,7 +4,8 @@ const TESTABLE_RUNTIME_FILES = [
   '/server/server.js',
   '/app/scripts/app.js',
   '/app/scripts/runtime.js',
-  '/app/scripts/sidebar.js'
+  '/app/scripts/sidebar.js',
+  '/config/assets/iparams.js'
 ];
 
 function exposeRuntimeInternalsForTests() {

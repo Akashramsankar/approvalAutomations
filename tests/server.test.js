@@ -68,14 +68,13 @@ describe("server core helpers", () => {
     });
   });
 
-  test("round-trips approval action tokens", () => {
-    const token = core.encodeApprovalActionToken("instance-1", "Agent@Example.com", "approve");
-    expect(core.decodeApprovalActionToken(token)).toEqual({
-      instance_id: "instance-1",
-      approver_email: "agent@example.com",
-      decision: "approved",
-    });
-    expect(core.decodeApprovalActionToken("invalid")).toBeNull();
+  test("rejects predictable approval tokens", () => {
+    const token = "a1:instance-1:agent%40example.com:approved";
+    expect(core.findPendingApprovalAction([{
+      id: "instance-1",
+      state: "pending",
+      approvers: [{ email: "agent@example.com", status: "pending" }],
+    }], token)).toBeNull();
   });
 
   test("builds API responses and useful errors", () => {
@@ -332,7 +331,7 @@ describe("server asynchronous workflows", () => {
         priority: { options: [{ value: "1", label: "Low" }, { value: "2", label: "High" }] },
       },
       sender_emails: [{ value: "support@example.com", label: "Support" }],
-      approver_agent_options: [{ value: "agent@example.com", label: "Agent" }],
+      approver_agent_options: [{ value: "agent@example.com", label: "Agent", agent_id: 10 }],
     };
     const sanitizedRule = core.sanitizeRulePayload(rule, supportData, null);
     const snapshot = core.buildTicketSnapshot(ticket);
@@ -348,6 +347,11 @@ describe("server asynchronous workflows", () => {
       matchContext
     );
     expect(approval.approvers).toHaveLength(1);
+    expect(approval.approvers[0].agent_id).toBe(10);
+    expect(approval.approvers[0].action_tokens.approved).toMatch(/^[a-z0-9_]+$/i);
+    expect(approval.approvers[0].action_tokens.rejected).toMatch(/^[a-z0-9_]+$/i);
+    expect(approval.approvers[0].action_tokens.approved)
+      .not.toBe(approval.approvers[0].action_tokens.rejected);
 
     const email = core.buildEmailContent(
       sanitizedRule,
@@ -360,7 +364,16 @@ describe("server asynchronous workflows", () => {
       }
     );
     expect(email.subject).toContain("Approval");
-    expect(email.body_html).toContain("Approve");
+    expect(email.body_html).toContain(">Approve</a>");
+    expect(email.body_html).toContain(">Reject</a>");
+    expect(email.body_html).toContain(approval.approvers[0].action_tokens.approved);
+    expect(email.body_html).toContain(approval.approvers[0].action_tokens.rejected);
+    expect(email.buttons_enabled).toBe(true);
+    expect(email.button_mode).toBe("bridge");
+    expect(core.findPendingApprovalAction(
+      [approval],
+      approval.approvers[0].action_tokens.approved
+    )).toEqual(expect.objectContaining({ decision: "approved" }));
 
     const previousState = approval.state;
     expect(core.updateApproverDecision(
@@ -433,6 +446,34 @@ describe("server asynchronous workflows", () => {
     expect(sidebarResult.state).toBe("approved");
 
     resetPendingDb();
+    globalThis.$db.get.mockImplementation(async (key) => {
+      if (String(key).includes("instances")) {
+        return {
+          instances: [{
+            ...structuredClone(instance),
+            approvers: [{
+              email: "agent@example.com",
+              label: "Agent",
+              agent_id: 10,
+              status: "pending",
+            }],
+          }],
+        };
+      }
+      if (String(key).includes("gates")) return { gates: [] };
+      return {};
+    });
+    const idMatchedResult = await core.recordSidebarApprovalDecision({
+      ticket_id: 42,
+      instance_id: "instance-1",
+      agent_id: 10,
+      agent_email: "renamed-agent@example.com",
+      agent_name: "Agent",
+      decision: "approve",
+    });
+    expect(idMatchedResult.state).toBe("approved");
+
+    resetPendingDb();
     await core.handleApprovalConversation({
       data: {
         conversation: {
@@ -456,8 +497,24 @@ describe("server asynchronous workflows", () => {
       },
     })).toBe(true);
 
-    resetPendingDb();
-    const token = core.encodeApprovalActionToken("instance-1", "agent@example.com", "approve");
+    globalThis.$db.get.mockImplementation(async (key) => {
+      if (String(key).includes("instances")) {
+        return {
+          instances: [{
+            ...structuredClone(instance),
+            approvers: [{
+              email: "agent@example.com",
+              label: "Agent",
+              status: "pending",
+              action_tokens: { approved: "opaque-approval-token" },
+            }],
+          }],
+        };
+      }
+      if (String(key).includes("gates")) return { gates: [] };
+      return {};
+    });
+    const token = "opaque-approval-token";
     const externalResult = await core.handleApprovalActionEvent({ data: { token } });
     expect(externalResult).toEqual(expect.objectContaining({ processed: true, decision: "approved" }));
   });

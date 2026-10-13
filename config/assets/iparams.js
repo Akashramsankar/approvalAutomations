@@ -7,6 +7,8 @@ let installerEmailInput;
 let installerNameError;
 let installerEmailError;
 
+const SAVED_API_KEY_PLACEHOLDER = "API key saved. Enter a new key to replace it.";
+
 const promoApps = [
   {
     name: "Schedule Replies Pro",
@@ -33,6 +35,7 @@ const promoApps = [
 
 let verified = false;
 let savedConfigs = {};
+let hasSavedApiKey = false;
 
 document.onreadystatechange = function () {
   if (document.readyState === "interactive") {
@@ -154,7 +157,7 @@ async function verify() {
 
     const domain = normalizeDomain(domainInput.value);
     const apiKey = apiKeyInput.value.trim();
-    const isKeyUnchanged = savedConfigs && savedConfigs.api_key && apiKey === savedConfigs.api_key;
+    const isKeyUnchanged = hasSavedApiKey && !apiKey;
 
     if (!domain) {
       showValidationMessage("Enter your Freshdesk domain before verifying.", "error");
@@ -300,8 +303,31 @@ function getAppMetadata() {
 
 function hasExistingInstallationConfig() {
   return Boolean(
-    savedConfigs && (savedConfigs.domain || savedConfigs.installer_email || savedConfigs.api_key)
+    savedConfigs && (savedConfigs.domain || savedConfigs.installer_email || hasSavedApiKey)
   );
+}
+
+function sanitizeLoadedConfigs(configs) {
+  const loadedConfigs = configs || {};
+  const savedApiKeyPresent = Boolean(loadedConfigs.api_key);
+  return {
+    configs: {
+      domain: loadedConfigs.domain || "",
+      installer_name: loadedConfigs.installer_name || "",
+      installer_email: loadedConfigs.installer_email || "",
+    },
+    hasSavedApiKey: savedApiKeyPresent,
+    apiKeyDisplayValue: "",
+  };
+}
+
+function resolveApiKeyForStorage(value, savedApiKeyPresent) {
+  const input = String(value || "").trim();
+  if (!input && savedApiKeyPresent) {
+    return undefined;
+  }
+
+  return input ? getBasicAuth(input) : "";
 }
 
 function buildSettingsCapturePayload() {
@@ -339,36 +365,46 @@ async function captureSettingsUpdate() {
 // eslint-disable-next-line no-unused-vars
 function postConfigs() {
   const newKeyInput = apiKeyInput.value.trim();
-  const isKeyUnchanged = savedConfigs.api_key && newKeyInput === savedConfigs.api_key;
-  const encodedApiKey = newKeyInput && !isKeyUnchanged
-    ? getBasicAuth(newKeyInput)
-    : savedConfigs.api_key;
+  const encodedApiKey = resolveApiKeyForStorage(newKeyInput, hasSavedApiKey);
 
-  return {
+  const configs = {
     __meta: {
       secure: ["api_key"],
     },
     domain: normalizeDomain(domainInput.value),
-    api_key: encodedApiKey,
     installer_name: getInstallerName(),
     installer_email: getInstallerEmail(),
   };
+
+  // Omitting an unchanged secure iparam tells Freshworks to preserve its
+  // stored value. Never submit a visual mask as though it were a credential.
+  if (encodedApiKey) {
+    configs.api_key = encodedApiKey;
+  }
+
+  return configs;
 }
 
 // Called by the FDK installation-page runtime.
 // eslint-disable-next-line no-unused-vars
 function getConfigs(configs) {
-  savedConfigs = configs || {};
+  const sanitized = sanitizeLoadedConfigs(configs);
+  hasSavedApiKey = sanitized.hasSavedApiKey;
+  // Never retain the secure value supplied to the settings iframe. Older
+  // installations can otherwise expose it through the DOM or page state.
+  savedConfigs = sanitized.configs;
   domainInput.value = savedConfigs.domain || "";
   installerNameInput.value = savedConfigs.installer_name || "";
   installerEmailInput.value = savedConfigs.installer_email || "";
   renderPromoApps();
 
-  if (configs.api_key) {
-    apiKeyInput.value = configs.api_key;
+  if (hasSavedApiKey) {
+    apiKeyInput.value = "";
+    apiKeyInput.placeholder = SAVED_API_KEY_PLACEHOLDER;
     verified = true;
   } else {
     apiKeyInput.value = "";
+    apiKeyInput.placeholder = "Freshdesk API Key";
     verified = false;
   }
 }
@@ -386,7 +422,7 @@ async function validate() {
     return false;
   }
 
-  if (!apiKey) {
+  if (!apiKey && !hasSavedApiKey) {
     showValidationMessage("API key is required.", "error");
     return false;
   }

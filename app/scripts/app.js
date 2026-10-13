@@ -876,6 +876,7 @@ function syncSelectedAgentApprovers(selectedEmails) {
         email: option.value,
         label: option.label,
         type: "agent",
+        agent_id: Number(option.agent_id) || 0,
       },
     ])
   );
@@ -1074,6 +1075,7 @@ function ruleToForm(rule) {
       email: approver.email,
       label: approver.label,
       type: approver.type || "external",
+      agent_id: Number(approver.agent_id) || 0,
     })),
     anyoneCanApprove: Boolean(rule.anyone_can_approve),
     autoCloseAfterApproval: rule.auto_close_after_approval !== false,
@@ -1424,6 +1426,7 @@ function dedupeApprovers(approvers) {
       email: approver.email,
       label: approver.label || approver.email,
       type: approver.type === "agent" ? "agent" : "external",
+      agent_id: Number(approver.agent_id) || 0,
     });
   });
 

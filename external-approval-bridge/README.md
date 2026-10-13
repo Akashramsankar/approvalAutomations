@@ -1,6 +1,6 @@
 # External Approval Bridge
 
-This is a tiny public relay for one-click external approvals.
+This is a tiny public relay for one-click external approvals. Approval links use stored opaque tokens and may also appear in the private Freshdesk conversation created by the forward API.
 
 Why it exists:
 - Freshworks `onExternalEvent` URLs are webhook-style endpoints.

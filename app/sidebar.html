@@ -262,14 +262,20 @@
     }
 
     .approver-row {
-      display: flex;
-      gap: 6px;
-      align-items: flex-start;
-      justify-content: space-between;
+      display: grid;
+      gap: 8px;
       padding: 8px 10px;
       border-radius: 10px;
       background: #ffffff;
       border: 1px solid #e8edf5;
+      min-width: 0;
+    }
+
+    .approver-summary {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      justify-content: space-between;
       min-width: 0;
     }
 
@@ -318,13 +324,13 @@
     }
 
     .approver-actions {
-      display: inline-flex;
-      gap: 4px;
+      display: flex;
+      gap: 6px;
       align-items: center;
-      flex-shrink: 0;
       flex-wrap: wrap;
-      justify-content: flex-end;
-      max-width: 100%;
+      justify-content: flex-start;
+      padding-left: 16px;
+      min-width: 0;
     }
 
     .hidden {
@@ -336,13 +342,7 @@
         display: grid;
       }
 
-      .approver-row {
-        display: grid;
-      }
-
       .approver-actions {
-        width: 100%;
-        justify-content: flex-start;
         padding-left: 16px;
       }
     }

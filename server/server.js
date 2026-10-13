@@ -145,7 +145,7 @@ function dedupeOptions(items) {
     }
 
     seen.add(key);
-    unique.push({ value, label });
+    unique.push({ ...item, value, label });
   });
 
   return unique;
@@ -272,97 +272,29 @@ function sanitizeActionTokens(tokens) {
   };
 }
 
-function parseApprovalActionTokenParts(instanceId, approverEmail, decision) {
-  const normalizedInstanceId = normalizeText(instanceId);
-  const normalizedApproverEmail = normalizeLower(approverEmail);
-  const normalizedDecision = normalizeLower(decision);
-
-  if (!normalizedInstanceId || !normalizedApproverEmail) {
-    return null;
+function createApprovalActionToken() {
+  const cryptoApi = typeof globalThis !== "undefined" ? globalThis.crypto : null;
+  if (cryptoApi && typeof cryptoApi.getRandomValues === "function") {
+    const bytes = new Uint8Array(24);
+    cryptoApi.getRandomValues(bytes);
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
   }
 
-  if (!["approved", "rejected"].includes(normalizedDecision)) {
-    return null;
-  }
+  return [createId("action"), createId("token"), createId("approval")].join("_");
+}
 
-  return {
-    instance_id: normalizedInstanceId,
-    approver_email: normalizedApproverEmail,
-    decision: normalizedDecision,
+function ensureApproverActionTokens(approver) {
+  const tokens = sanitizeActionTokens(approver && approver.action_tokens);
+  const nextTokens = {
+    approved: tokens.approved || createApprovalActionToken(),
+    rejected: tokens.rejected || createApprovalActionToken(),
   };
-}
 
-function decodeLegacyBase64UrlToken(token) {
-  const normalizedToken = normalizeText(token);
-  if (!normalizedToken) {
-    return null;
+  if (approver && typeof approver === "object") {
+    approver.action_tokens = nextTokens;
   }
 
-  try {
-    if (typeof Buffer !== "undefined" && Buffer && typeof Buffer.from === "function") {
-      return Buffer.from(normalizedToken, "base64url").toString("utf8");
-    }
-  } catch {
-    // Fall through to non-Buffer decode helpers.
-  }
-
-  try {
-    if (typeof atob === "function") {
-      const base64 = normalizedToken.replace(/-/g, "+").replace(/_/g, "/");
-      const padded = `${base64}${"=".repeat((4 - (base64.length % 4)) % 4)}`;
-      const binary = atob(padded);
-      if (typeof TextDecoder === "function") {
-        const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-        return new TextDecoder().decode(bytes);
-      }
-      return binary;
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
-}
-
-function encodeApprovalActionToken(instanceId, approverEmail, decision) {
-  const normalizedDecision = normalizeLower(decision) === "rejected" ? "rejected" : "approved";
-  return [
-    "a1",
-    encodeURIComponent(normalizeText(instanceId)),
-    encodeURIComponent(normalizeLower(approverEmail)),
-    normalizedDecision,
-  ].join(":");
-}
-
-function decodeApprovalActionToken(token) {
-  const normalizedToken = normalizeText(token);
-  if (!normalizedToken) {
-    return null;
-  }
-
-  if (normalizedToken.startsWith("a1:")) {
-    try {
-      const [, encodedInstanceId, encodedApproverEmail, encodedDecision] = normalizedToken.split(":");
-      return parseApprovalActionTokenParts(
-        decodeURIComponent(encodedInstanceId || ""),
-        decodeURIComponent(encodedApproverEmail || ""),
-        decodeURIComponent(encodedDecision || "")
-      );
-    } catch {
-      return null;
-    }
-  }
-
-  try {
-    const decoded = decodeLegacyBase64UrlToken(normalizedToken);
-    if (!decoded) {
-      return null;
-    }
-    const [instanceId, approverEmail, decision] = decoded.split("|");
-    return parseApprovalActionTokenParts(instanceId, approverEmail, decision);
-  } catch {
-    return null;
-  }
+  return nextTokens;
 }
 
 function buildErrorMessage(error, fallback) {
@@ -1663,6 +1595,7 @@ async function fetchSupportData(metadata) {
           ? {
               value: email,
               label: `${name} - ${email}`,
+              agent_id: Number(agent.id),
             }
           : null;
       })
@@ -2097,7 +2030,12 @@ function sanitizeApprovers(approvers, agentOptions) {
     (Array.isArray(agentOptions) ? agentOptions : []).map((option) => {
       const email = normalizeText(option.value);
       const label = normalizeText(option.label);
-      return [email.toLowerCase(), { email, label, type: "agent" }];
+      return [email.toLowerCase(), {
+        email,
+        label,
+        type: "agent",
+        agent_id: Number(option && option.agent_id) || 0,
+      }];
     })
   );
 
@@ -2123,6 +2061,7 @@ function sanitizeApprovers(approvers, agentOptions) {
       email: rawEmail,
       label: normalizeText(approver && approver.label) || rawEmail,
       type: "external",
+      agent_id: 0,
     });
   });
 
@@ -2979,13 +2918,16 @@ function isTerminalBackfillStatus(statusValue) {
 }
 
 function buildPendingApproverFromRule(ruleApprover, existingApprover) {
-  const actionTokens = sanitizeActionTokens(existingApprover && existingApprover.action_tokens);
-  return {
+  const pendingApprover = {
     email: normalizeText(ruleApprover && ruleApprover.email),
     label:
       normalizeText(ruleApprover && ruleApprover.label) ||
       normalizeText(ruleApprover && ruleApprover.email),
     type: normalizeText(ruleApprover && ruleApprover.type) || "external",
+    agent_id:
+      Number(ruleApprover && ruleApprover.agent_id) ||
+      Number(existingApprover && existingApprover.agent_id) ||
+      0,
     status: normalizeText(existingApprover && existingApprover.status) || "pending",
     responded_at: Number(existingApprover && existingApprover.responded_at) || 0,
     decision_source: normalizeText(existingApprover && existingApprover.decision_source),
@@ -2995,8 +2937,11 @@ function buildPendingApproverFromRule(ruleApprover, existingApprover) {
     email_sent_at: Number(existingApprover && existingApprover.email_sent_at) || 0,
     email_response_id: Number(existingApprover && existingApprover.email_response_id) || 0,
     email_sender_fallback_used: Boolean(existingApprover && existingApprover.email_sender_fallback_used),
-    action_tokens: actionTokens.approved || actionTokens.rejected ? actionTokens : undefined,
   };
+  pendingApprover.action_tokens = ensureApproverActionTokens({
+    action_tokens: existingApprover && existingApprover.action_tokens,
+  });
+  return pendingApprover;
 }
 
 function approversMatch(leftApprovers, rightApprovers) {
@@ -3010,6 +2955,7 @@ function approversMatch(leftApprovers, rightApprovers) {
   return left.every((approver, index) => {
     const other = right[index] || {};
     return normalizeLower(approver && approver.email) === normalizeLower(other && other.email) &&
+      Number(approver && approver.agent_id) === Number(other && other.agent_id) &&
       normalizeText(approver && approver.label) === normalizeText(other && other.label) &&
       normalizeText(approver && approver.type) === normalizeText(other && other.type) &&
       normalizeText(approver && approver.status) === normalizeText(other && other.status) &&
@@ -3332,103 +3278,53 @@ function buildEmailActionMarkup(actionConfig) {
 
 function buildEmailContent(rule, instance, approver, actionConfig) {
   const approverLabel = normalizeText(approver && (approver.label || approver.email));
+  const actionTokens = ensureApproverActionTokens(approver);
   const emailActions = buildEmailActionMarkup(actionConfig);
+  const approvePalette = [
+    "display:inline-block", "text-decoration:none", "border:1px solid #17324d",
+    "border-radius:999px", "background:#17324d", "color:#ffffff", "padding:10px 18px",
+    "font-size:13px", "font-weight:700", "font-family:Arial,sans-serif", "line-height:1",
+    "margin:0 8px 8px 0",
+  ].join(";");
+  const rejectPalette = [
+    "display:inline-block", "text-decoration:none", "border:1px solid #e0b9b4",
+    "border-radius:999px", "background:#fff4f2", "color:#9d2b22", "padding:10px 18px",
+    "font-size:13px", "font-weight:700", "font-family:Arial,sans-serif", "line-height:1",
+    "margin:0 8px 8px 0",
+  ].join(";");
+  const bridgeMetadata = {
+    ticket_subject: instance && instance.ticket_subject,
+    rule_name: rule && rule.name,
+    approver: approverLabel,
+    request_id: instance && instance.id,
+  };
   emailActions.approve_bridge_button = buildBridgeButtonMarkup(
     normalizeUrl(actionConfig && actionConfig.approval_bridge_url),
     normalizeText(actionConfig && actionConfig.approval_bridge_launch_url),
     normalizeText(actionConfig && actionConfig.external_action_url),
-    encodeApprovalActionToken(instance && instance.id, approver && approver.email, "approved"),
+    actionTokens.approved,
     "approved",
     "Approve",
-    [
-      "display:inline-block",
-      "text-decoration:none",
-      "border:1px solid #17324d",
-      "border-radius:999px",
-      "background:#17324d",
-      "color:#ffffff",
-      "padding:10px 18px",
-      "font-size:13px",
-      "font-weight:700",
-      "font-family:Arial,sans-serif",
-      "line-height:1",
-      "margin:0 8px 8px 0",
-    ].join(";"),
-    {
-      ticket_subject: instance && instance.ticket_subject,
-      rule_name: rule && rule.name,
-      approver: approverLabel,
-      request_id: instance && instance.id,
-    }
+    approvePalette,
+    bridgeMetadata
   );
   emailActions.reject_bridge_button = buildBridgeButtonMarkup(
     normalizeUrl(actionConfig && actionConfig.approval_bridge_url),
     normalizeText(actionConfig && actionConfig.approval_bridge_launch_url),
     normalizeText(actionConfig && actionConfig.external_action_url),
-    encodeApprovalActionToken(instance && instance.id, approver && approver.email, "rejected"),
+    actionTokens.rejected,
     "rejected",
     "Reject",
-    [
-      "display:inline-block",
-      "text-decoration:none",
-      "border:1px solid #e0b9b4",
-      "border-radius:999px",
-      "background:#fff4f2",
-      "color:#9d2b22",
-      "padding:10px 18px",
-      "font-size:13px",
-      "font-weight:700",
-      "font-family:Arial,sans-serif",
-      "line-height:1",
-      "margin:0 8px 8px 0",
-    ].join(";"),
-    {
-      ticket_subject: instance && instance.ticket_subject,
-      rule_name: rule && rule.name,
-      approver: approverLabel,
-      request_id: instance && instance.id,
-    }
+    rejectPalette,
+    bridgeMetadata
   );
   if (emailActions.button_mode !== "bridge") {
+    const replyTarget = normalizeText(rule && rule.sender_email) || normalizeText(emailActions.sender_email);
     emailActions.approve_mailto_button = buildMailtoButtonMarkup(
-      normalizeText(rule && rule.sender_email) || normalizeText(emailActions.sender_email),
-      instance,
-      "approved",
-      "Approve",
-      [
-        "display:inline-block",
-        "text-decoration:none",
-        "border:1px solid #17324d",
-        "border-radius:999px",
-        "background:#17324d",
-        "color:#ffffff",
-        "padding:10px 18px",
-        "font-size:13px",
-        "font-weight:700",
-        "font-family:Arial,sans-serif",
-        "line-height:1",
-        "margin:0 8px 8px 0",
-      ].join(";")
+      replyTarget, instance, "approved", "Approve", approvePalette
     );
     emailActions.reject_mailto_button = buildMailtoButtonMarkup(
-      normalizeText(rule && rule.sender_email) || normalizeText(emailActions.sender_email),
-      instance,
-      "rejected",
-      "Reject",
-      [
-        "display:inline-block",
-        "text-decoration:none",
-        "border:1px solid #e0b9b4",
-        "border-radius:999px",
-        "background:#fff4f2",
-        "color:#9d2b22",
-        "padding:10px 18px",
-        "font-size:13px",
-        "font-weight:700",
-        "font-family:Arial,sans-serif",
-        "line-height:1",
-        "margin:0 8px 8px 0",
-      ].join(";")
+      replyTarget, instance, "rejected", "Reject", rejectPalette
     );
   }
   const mailtoButtonsEnabled = Boolean(
@@ -3922,6 +3818,7 @@ function summarizeInstance(instance) {
     email: approver.email,
     label: approver.label,
     type: approver.type,
+    agent_id: Number(approver.agent_id) || 0,
     status: approver.status,
     responded_at: approver.responded_at,
     decision_source: approver.decision_source,
@@ -4639,31 +4536,6 @@ function findPendingApprovalAction(instances, token) {
     return null;
   }
 
-  const decodedToken = decodeApprovalActionToken(normalizedToken);
-  if (decodedToken) {
-    const matchedInstance = (Array.isArray(instances) ? instances : []).find((instance) => {
-      return instance &&
-        instance.state === "pending" &&
-        normalizeText(instance.id) === normalizeText(decodedToken.instance_id);
-    });
-
-    if (matchedInstance) {
-      const matchedApprover = (matchedInstance.approvers || []).find((approver) => {
-        return approver &&
-          approver.status === "pending" &&
-          normalizeLower(approver.email) === normalizeLower(decodedToken.approver_email);
-      });
-
-      if (matchedApprover) {
-        return {
-          instance: matchedInstance,
-          approver: matchedApprover,
-          decision: decodedToken.decision,
-        };
-      }
-    }
-  }
-
   for (const instance of Array.isArray(instances) ? instances : []) {
     if (!instance || instance.state !== "pending") {
       continue;
@@ -4769,6 +4641,7 @@ async function recordSidebarApprovalDecision(payload) {
   const ticketId = Number(payload && payload.ticket_id);
   const instanceId = normalizeText(payload && payload.instance_id);
   const agentEmail = normalizeText(payload && payload.agent_email);
+  const agentId = Number(payload && payload.agent_id) || 0;
   const decision = parseApprovalDecision(payload && payload.decision);
   const agentName = normalizeText(payload && payload.agent_name);
 
@@ -4780,8 +4653,8 @@ async function recordSidebarApprovalDecision(payload) {
     throw new Error("Approval instance id is required.");
   }
 
-  if (!agentEmail) {
-    throw new Error("Agent email is required.");
+  if (!agentEmail && !agentId) {
+    throw new Error("Agent identity is required.");
   }
 
   if (!decision) {
@@ -4804,7 +4677,12 @@ async function recordSidebarApprovalDecision(payload) {
   }
 
   const approver = (currentInstance.approvers || []).find((item) => {
-    return normalizeLower(item && item.email) === normalizeLower(agentEmail);
+    const approverAgentId = Number(item && item.agent_id) || 0;
+    const idsMatch = Boolean(agentId && approverAgentId && agentId === approverAgentId);
+    const emailsMatch = Boolean(
+      agentEmail && normalizeLower(item && item.email) === normalizeLower(agentEmail)
+    );
+    return idsMatch || emailsMatch;
   });
 
   if (!approver) {
@@ -4816,13 +4694,14 @@ async function recordSidebarApprovalDecision(payload) {
   }
 
   const previousState = currentInstance.state;
-  const changed = updateApproverDecision(currentInstance, agentEmail, decision, "agent_manual");
+  const approverEmail = normalizeText(approver && approver.email) || agentEmail;
+  const changed = updateApproverDecision(currentInstance, approverEmail, decision, "agent_manual");
   if (!changed) {
     throw new Error("No approval state change was recorded.");
   }
 
   const notes = [
-    buildDecisionAuditNote(currentInstance, agentEmail, decision, "agent_manual", previousState),
+    buildDecisionAuditNote(currentInstance, approverEmail, decision, "agent_manual", previousState),
   ];
   const gateResult = await syncGateAfterApprovalUpdate(currentInstance, instances, gates);
   if (gateResult.note) {
@@ -4836,7 +4715,8 @@ async function recordSidebarApprovalDecision(payload) {
     ticket_id: ticketId,
     instance_id: normalizeText(currentInstance.id),
     decision,
-    agent_email: agentEmail,
+    agent_email: approverEmail,
+    agent_id: agentId,
     agent_name: agentName,
     state: normalizeText(currentInstance.state),
   });
