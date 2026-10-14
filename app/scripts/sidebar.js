@@ -306,17 +306,26 @@ function getPrimaryInstance(instances) {
 function getApprovalProgressMetrics(instance) {
   const approvers = Array.isArray(instance && instance.approvers) ? instance.approvers : [];
   const total = approvers.length;
-  const approved = Number(instance && instance.approved_count) || approvers.filter((approver) => approver && approver.status === "approved").length;
-  const rejected = Number(instance && instance.rejected_count) || approvers.filter((approver) => approver && approver.status === "rejected").length;
-  const pending = Number(instance && instance.pending_count) || Math.max(total - approved - rejected, 0);
+  const approvedFallback = approvers.filter((approver) => approver && approver.status === "approved").length;
+  const rejectedFallback = approvers.filter((approver) => approver && approver.status === "rejected").length;
+  const rawPending = approvers.filter((approver) => approver && approver.status === "pending").length;
+  const approvedValue = Number(instance && instance.approved_count);
+  const rejectedValue = Number(instance && instance.rejected_count);
+  const pendingValue = Number(instance && instance.pending_count);
+  const approved = Number.isFinite(approvedValue) ? approvedValue : approvedFallback;
+  const rejected = Number.isFinite(rejectedValue) ? rejectedValue : rejectedFallback;
+  const terminal = Boolean(instance && ["approved", "rejected"].includes(instance.state));
+  const pending = Number.isFinite(pendingValue) ? pendingValue : terminal ? 0 : rawPending;
+  const notRequired = terminal ? rawPending : 0;
   const reviewed = approved + rejected;
-  const percent = total ? Math.round((reviewed / total) * 100) : 0;
+  const percent = total ? Math.round(((reviewed + notRequired) / total) * 100) : 0;
 
   return {
     total,
     approved,
     rejected,
     pending,
+    notRequired,
     reviewed,
     percent,
   };
@@ -327,6 +336,10 @@ function renderApprovalProgress(instance) {
   let label = `${metrics.approved} of ${metrics.total} approved`;
   if (!metrics.total) {
     label = "No approvers assigned";
+  } else if (instance && instance.state === "rejected") {
+    label = "Request rejected";
+  } else if (instance && instance.state === "approved") {
+    label = "Request approved";
   } else if (metrics.rejected > 0) {
     label = `${metrics.reviewed} of ${metrics.total} reviewed`;
   } else if (metrics.approved === metrics.total) {
@@ -336,7 +349,9 @@ function renderApprovalProgress(instance) {
   let meta = "Waiting to start";
   if (metrics.total) {
     meta = `${metrics.pending} pending`;
-    if (!metrics.pending && metrics.rejected > 0) {
+    if (metrics.notRequired > 0) {
+      meta = `${metrics.notRequired} not required`;
+    } else if (!metrics.pending && metrics.rejected > 0) {
       meta = `${metrics.rejected} rejected`;
     } else if (!metrics.pending) {
       meta = "Complete";
@@ -373,6 +388,14 @@ function getApproverStateMeta(value) {
     };
   }
 
+  if (value === "not_required") {
+    return {
+      label: "Not Required",
+      dotClass: "status-not-required",
+      pillClass: "pill-neutral",
+    };
+  }
+
   return {
     label: "Awaiting Reply",
     dotClass: "status-pending",
@@ -380,8 +403,14 @@ function getApproverStateMeta(value) {
   };
 }
 
+function getEffectiveApproverStatus(instance, approver) {
+  const status = String((approver && approver.status) || "pending").trim().toLowerCase();
+  const terminal = Boolean(instance && ["approved", "rejected"].includes(instance.state));
+  return terminal && status === "pending" ? "not_required" : status;
+}
+
 function renderApproverRow(instance, approver) {
-  const statusMeta = getApproverStateMeta(approver.status);
+  const statusMeta = getApproverStateMeta(getEffectiveApproverStatus(instance, approver));
   const approverLine = formatApproverLine(approver);
   const canAct = canLoggedInAgentAct(instance, approver, state.loggedInAgent);
 

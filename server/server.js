@@ -1804,7 +1804,13 @@ async function writeRules(rules) {
 
 async function readInstances() {
   const stored = await readDbJson(INSTANCES_KEY, { instances: [] });
-  return Array.isArray(stored && stored.instances) ? stored.instances : [];
+  const instances = Array.isArray(stored && stored.instances) ? stored.instances : [];
+  return instances.map((instance) => {
+    if (instance && Array.isArray(instance.approvers)) {
+      recomputeInstanceState(instance);
+    }
+    return instance;
+  });
 }
 
 function dedupeInstancesById(instances) {
@@ -3151,24 +3157,34 @@ function recomputeStatusGate(gate, instances) {
   return gate;
 }
 
+function resolveAnyoneApprovalState(total, approvedCount, rejectedCount) {
+  if (approvedCount > 0) {
+    return "approved";
+  }
+  if (total > 0 && rejectedCount === total) {
+    return "rejected";
+  }
+  return "pending";
+}
+
+function resolveEveryoneApprovalState(total, approvedCount, rejectedCount) {
+  if (rejectedCount > 0) {
+    return "rejected";
+  }
+  if (total > 0 && approvedCount === total) {
+    return "approved";
+  }
+  return "pending";
+}
+
 function recomputeInstanceState(instance) {
   const approvers = Array.isArray(instance.approvers) ? instance.approvers : [];
-
-  if (approvers.some((approver) => approver.status === "rejected")) {
-    instance.state = "rejected";
-    return instance;
-  }
-
-  if (instance.approval_mode === "anyone") {
-    instance.state = approvers.some((approver) => approver.status === "approved")
-      ? "approved"
-      : "pending";
-    return instance;
-  }
-
-  instance.state = approvers.length && approvers.every((approver) => approver.status === "approved")
-    ? "approved"
-    : "pending";
+  const approvedCount = approvers.filter((approver) => approver.status === "approved").length;
+  const rejectedCount = approvers.filter((approver) => approver.status === "rejected").length;
+  const resolver = instance.approval_mode === "anyone"
+    ? resolveAnyoneApprovalState
+    : resolveEveryoneApprovalState;
+  instance.state = resolver(approvers.length, approvedCount, rejectedCount);
   return instance;
 }
 

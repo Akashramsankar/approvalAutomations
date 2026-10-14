@@ -77,6 +77,46 @@ describe("server core helpers", () => {
     }], token)).toBeNull();
   });
 
+  test("applies the correct terminal rules for everyone and anyone modes", () => {
+    const everyone = {
+      state: "pending",
+      approval_mode: "everyone",
+      approvers: [
+        { email: "first@example.com", status: "rejected" },
+        { email: "second@example.com", status: "pending" },
+      ],
+    };
+    core.recomputeInstanceState(everyone);
+    expect(everyone.state).toBe("rejected");
+    expect(core.summarizeInstance(everyone)).toEqual(expect.objectContaining({
+      state: "rejected",
+      rejected_count: 1,
+      pending_count: 0,
+    }));
+
+    const anyone = {
+      state: "pending",
+      approval_mode: "anyone",
+      approvers: [
+        { email: "first@example.com", status: "rejected" },
+        { email: "second@example.com", status: "pending" },
+      ],
+    };
+    core.recomputeInstanceState(anyone);
+    expect(anyone.state).toBe("pending");
+
+    anyone.approvers[1].status = "approved";
+    core.recomputeInstanceState(anyone);
+    expect(anyone.state).toBe("approved");
+
+    anyone.approvers = anyone.approvers.map((approver) => ({
+      ...approver,
+      status: "rejected",
+    }));
+    core.recomputeInstanceState(anyone);
+    expect(anyone.state).toBe("rejected");
+  });
+
   test("builds API responses and useful errors", () => {
     globalThis.renderData = vi.fn((error, data) => JSON.stringify(data || error));
     expect(JSON.parse(core.buildResponse({ ok: true }))).toEqual({ ok: true });
@@ -423,6 +463,23 @@ describe("server asynchronous workflows", () => {
     await core.writeLiveFieldMetadata([]);
 
     expect(globalThis.$db.set).toHaveBeenCalled();
+  });
+
+  test("normalizes approval states created by the previous anyone-mode logic", async () => {
+    globalThis.$db.get.mockResolvedValue({
+      instances: [{
+        ...structuredClone(instance),
+        state: "rejected",
+        approval_mode: "anyone",
+        approvers: [
+          { email: "first@example.com", status: "rejected" },
+          { email: "second@example.com", status: "pending" },
+        ],
+      }],
+    });
+
+    const [normalized] = await core.readInstances();
+    expect(normalized.state).toBe("pending");
   });
 
   test("records decisions from sidebar, replies, conversations, and action links", async () => {
